@@ -22,7 +22,7 @@ const bookSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       default: 0,
-      
+
     },
     img: {
         type: String, 
@@ -39,4 +39,4 @@ const bookSchema = new mongoose.Schema(
   }
 );
 
-export default BookSchema;
+export default bookSchema;

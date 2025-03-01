@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import BookSchema from "../schema/book.schema.js"
+import bookSchema from "../schema/book.schema.js"
 
-const BookModel = mongoose.model("Book", BookSchema);
+const BookModel = mongoose.model("Book", bookSchema);
 
 export default BookModel;

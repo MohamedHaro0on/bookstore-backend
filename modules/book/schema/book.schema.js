@@ -21,6 +21,8 @@ const bookSchema = new mongoose.Schema(
     stock: {
       type: Number,
       min: 0,
+      default: 0,
+      
     },
     img: {
         type: String, 
@@ -37,4 +39,4 @@ const bookSchema = new mongoose.Schema(
   }
 );
 
-export default bookSchema;
+export default BookSchema;

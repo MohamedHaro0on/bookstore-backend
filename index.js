@@ -7,6 +7,7 @@ import routeNotImplementedHandler from "./handlers/notImplementedRoute.handler.j
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import UserRoutes from "./modules/user/routes/user.routes.js";
+import bookRouter from "./modules/book/routes/book.routes.js";
 const app = express();
 
 config(); // to Setup the dotenv  ;
@@ -30,6 +31,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Routes :
 app.use("/api/v1/user", UserRoutes);
+app.use('/book', bookRouter);
 // Not implemented Errors :
 app.all("*", routeNotImplementedHandler);
 // Global error handling middleware for express ;

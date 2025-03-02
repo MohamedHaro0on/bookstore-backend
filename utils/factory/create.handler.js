@@ -1,6 +1,6 @@
-import { StatusCodes } from "http-status-codes";
-import ApiError from "../api.error.js";
-import expressAsyncHandler from "express-async-handler";
+import expressAsyncHandler from 'express-async-handler';
+import {StatusCodes} from 'http-status-codes';
+import ApiError from '../api.error.js';
 
 const createHandler = (Model) =>
   expressAsyncHandler(async (req, res, next, error) => {
@@ -8,7 +8,7 @@ const createHandler = (Model) =>
 
     if (createdDocument) {
       return res.status(StatusCodes.OK).json({
-        message: `${Model.modelName} Created Succefully successfully`,
+        message: `${Model.modelName} Created Succefully successfully`
       });
     }
 

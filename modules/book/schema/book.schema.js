@@ -1,41 +1,41 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const bookSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: true
     },
     author: {
       type: String,
-      required: true,
+      required: true
     },
     price: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
     description: {
-      type: String,
+      type: String
     },
     stock: {
       type: Number,
       min: 0,
-      default: 0,
+      default: 0
 
     },
     img: {
-        type: String, 
-      },
+      type: String
+    },
     reviews: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Review", 
-      },
-    ],
+        ref: 'Review'
+      }
+    ]
   },
   {
-    timestamps: true, 
+    timestamps: true
   }
 );
 

@@ -1,10 +1,10 @@
-import { StatusCodes } from "http-status-codes";
-import ApiError from "../utils/api.error.js";
-import errorHandler from "../handlers/error.handler.js";
+import {StatusCodes} from 'http-status-codes';
+import errorHandler from '../handlers/error.handler.js';
+import ApiError from '../utils/api.error.js';
 
 const validateRequest = (schema) => {
   return async (req, res, next) => {
-    const validationOptions = { abortEarly: false }; // Validate all fields, not just the first error
+    const validationOptions = {abortEarly: false}; // Validate all fields, not just the first error
     try {
       // Validate body, params, and query if they exist in the schema
       if (schema.body) {
@@ -22,14 +22,14 @@ const validateRequest = (schema) => {
     } catch (error) {
       let customError = null;
       if (error.details) {
-        console.log("this is inside the error.details 1", error);
+        console.log('this is inside the error.details 1', error);
         customError = new ApiError(
-          error.details.map((detail) => detail.message).join(", "),
+          error.details.map((detail) => detail.message).join(', '),
           StatusCodes.BAD_REQUEST
         );
         errorHandler(customError, req, res, next);
       } else {
-        // Handle custom errors (e.g., from CheckSubCategoriesExistInTheSameCategory)
+        // Handle custom errors thrown from the controller
         customError = new ApiError(error?.message, StatusCodes.BAD_REQUEST);
         errorHandler(customError, req, res, next);
       }

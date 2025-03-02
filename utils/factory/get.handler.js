@@ -1,7 +1,7 @@
-import { StatusCodes } from "http-status-codes";
-import ApiError from "../api.error.js";
-import ApiFeatures from "../api.featuers.js";
-import expressAsyncHandler from "express-async-handler";
+import expressAsyncHandler from 'express-async-handler';
+import {StatusCodes} from 'http-status-codes';
+import ApiError from '../api.error.js';
+import ApiFeatures from '../api.featuers.js';
 
 const GetHandler = (Model, object) =>
   expressAsyncHandler(async (req, res) => {
@@ -14,16 +14,16 @@ const GetHandler = (Model, object) =>
       apiFeatures = apiFeatures.populate(object);
     }
 
-    const { mongooseQuery, paginationResult } = apiFeatures;
+    const {mongooseQuery, paginationResult} = apiFeatures;
     const data = await mongooseQuery;
     if (data) {
       res.status(StatusCodes.OK).json({
         message: ` ${Model.modelName} Fetched Successfully`,
         ...paginationResult,
-        data: data,
+        data
       });
     } else {
-      //if data is not found :
+      // if data is not found :
       return next(
         new ApiError(`${Model.modelName} is not found`, StatusCodes.NOT_FOUND)
       );

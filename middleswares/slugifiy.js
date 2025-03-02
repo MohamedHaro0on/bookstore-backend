@@ -1,4 +1,4 @@
-import slugify from "slugify";
+import slugify from 'slugify';
 
 const slugifyMiddleWare = (req, res, next) => {
   if (req.body.name) {

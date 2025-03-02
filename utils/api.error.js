@@ -6,7 +6,7 @@ class ApiError extends Error {
     this.statusCode = statusCode;
     this.isOperational = true;
     this.message = message;
-    this.status = "fail";
+    this.status = 'fail';
   }
 }
 

@@ -26,18 +26,16 @@ const userSchema = new mongoose.Schema(
         message: (props) => `${props.value} is not a valid email!`,
       },
     },
+    isEmailVerfied: {
+      type: Boolean,
+      default: false,
+    },
     password: {
       type: String,
       required: true,
       minlength: 6,
     },
 
-    username: {
-      type: String,
-      unique: true,
-      sparse: true,
-      trim: true,
-    },
     phoneNumber: {
       type: String,
       trim: true,
@@ -46,12 +44,6 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
     },
-
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -67,23 +59,18 @@ userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  this.password = await bcrypt.hash(this.password, 8);
+  next();
 });
-
-userSchema.toJSON = function () {
-  const { __v, password, ...user } = this.toObject();
-  return user;
+userSchema.methods.verifyPassword = async function (password) {
+  return bcrypt.compareSync(password, this.password);
 };
-userSchema.methods.comparePassword = function (password) {
-  return bcrypt.compare(password, this.password);
+
+userSchema.methods.toJSON = function () {
+  const employee = this.toObject();
+  delete employee.__v;
+  delete employee.password;
+  return employee;
 };
 
 export default userSchema;

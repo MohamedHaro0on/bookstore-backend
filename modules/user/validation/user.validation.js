@@ -54,11 +54,15 @@ export const getUsersSchema = {
     isVerified: Joi.boolean(),
     search: Joi.string().trim(),
     sortBy: Joi.string().valid("createdAt", "firstName", "email"),
+    id: ObjectId().messages({
+      "any.required": "User ID is required",
+      "string.pattern.name": "Invalid user ID format",
+    }),
   }),
 };
 
 export const getUserByIdSchema = {
-  params: Joi.object({
+  query: Joi.object({
     id: ObjectId().required().messages({
       "any.required": "User ID is required",
       "string.pattern.name": "Invalid user ID format",

@@ -20,6 +20,7 @@ const validateRequest = (schema) => {
       // If validation passes, proceed to the next middleware or controller
       next();
     } catch (error) {
+      console.log("this is the error : ", error);
       let customError = null;
       if (error.details) {
         console.log("this is inside the error.details 1", error);
@@ -29,7 +30,6 @@ const validateRequest = (schema) => {
         );
         errorHandler(customError, req, res, next);
       } else {
-        // Handle custom errors thrown from the controller
         // Handle custom errors thrown from the controller
         customError = new ApiError(error?.message, StatusCodes.BAD_REQUEST);
         errorHandler(customError, req, res, next);

@@ -1,8 +1,8 @@
 // routes/user.routes.js
 
 import express from "express";
-import { validateRequest } from "../middleware/validate.request.js";
-import { authenticate } from "../middleware/auth.user.js";
+import validateRequest from "../../../middlewares/validate.request.js";
+import authenticateUser from "../../../middlewares/authicate.user.js";
 import {
   createUserSchema,
   loginSchema,
@@ -11,33 +11,49 @@ import {
   updateProfileSchema,
   deleteUserSchema,
   //   changeRoleSchema,
-} from "../validations/user.validation.js";
+} from "../validation/user.validation.js";
+import {
+  register,
+  login,
+  refreshToken,
+  logout,
+  getUserById,
+} from "../controller/user.controller.js";
 
 const UserRoutes = express.Router();
 
 // Public routes
-UserRoutes.post("/register", validateRequest(createUserSchema), createUser);
+UserRoutes.post("/register", validateRequest(createUserSchema), register);
 UserRoutes.post("/login", validateRequest(loginSchema), login);
 
-// UserRoutes.use(authenticate);
-
 // startring the protected routes :
-UserRoutes.get("/", validateRequest(getUsersSchema), getUsers);
-UserRoutes.get("/:id", validateRequest(getUserByIdSchema), getUserById);
-UserRoutes.patch("/:id", validateRequest(updateProfileSchema), updateProfile);
-
-// Admin only routes
-UserRoutes.delete(
+// UserRoutes.get(
+//   "/",
+//   authenticateUser,
+//   validateRequest(getUsersSchema),
+//   getUsers
+// );
+UserRoutes.get(
   "/:id",
-  validateRequest(deleteUserSchema),
-  //isAdmin,
-  deleteUser
+  authenticateUser,
+  validateRequest(getUserByIdSchema),
+  getUserById
 );
 // UserRoutes.patch(
-//   "/:id/role",
-//   validateRequest(changeRoleSchema),
-//   isAdmin,
-//   changeRole
+//   "/:id",
+//   authenticateUser,
+//   validateRequest(updateProfileSchema),
+//   updateProfile
 // );
 
-export default router;
+UserRoutes.post("/refresh-token", refreshToken);
+UserRoutes.post("/logout", logout);
+// Admin only routes
+// UserRoutes.delete(
+//   "/:id",
+//   authenticateUser,
+//   validateRequest(deleteUserSchema),
+//   deleteUser
+// );
+
+export default UserRoutes;

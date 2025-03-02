@@ -4,7 +4,9 @@ import morgan from "morgan";
 import DBconnection from "./configurations/config.js";
 import errorHandler from "./handlers/error.handler.js";
 import routeNotImplementedHandler from "./handlers/notImplementedRoute.handler.js";
-
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import UserRoutes from "./modules/user/routes/user.routes.js";
 const app = express();
 
 config(); // to Setup the dotenv  ;
@@ -19,7 +21,6 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -28,7 +29,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // Routes :
-
+app.use("/api/v1/user", UserRoutes);
 // Not implemented Errors :
 app.all("*", routeNotImplementedHandler);
 // Global error handling middleware for express ;

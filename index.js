@@ -31,7 +31,7 @@ if (process.env.NODE_ENV === "development") {
 
 // Routes :
 app.use("/api/v1/user", UserRoutes);
-app.use("/book", bookRouter);
+app.use("/book/", bookRouter);
 // Not implemented Errors :
 app.all("*", routeNotImplementedHandler);
 // Global error handling middleware for express ;

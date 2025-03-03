@@ -5,7 +5,8 @@ import ApiFeatures from "../api.featuers.js";
 
 const GetByIdHandler = (Model, populateObject) =>
   expressAsyncHandler(async (req, res, next) => {
-    const { id } = req.query;
+    let id = req.params.id ? req.params.id : req.query.id;
+
     let apiFeatures = null;
     apiFeatures = new ApiFeatures(Model.findById(id), req.query);
     if (populateObject) {

@@ -21,11 +21,19 @@ import {
   // updateProfileSchema,
   // deleteUserSchema,
 } from "../validation/user.validation.js";
+import sendEmail from "../../../middlewares/email/send.email.js";
+import UserModel from "../model/user.model.js";
+import RefreshTokenModel from "../../refresh_token/model/refresh_token.model.js";
 
 const UserRoutes = express.Router();
 
 // Public routes
-UserRoutes.post("/auth/register", validateRequest(createUserSchema), register);
+UserRoutes.post(
+  "/auth/register",
+  validateRequest(createUserSchema),
+  sendEmail,
+  register
+);
 
 UserRoutes.post("/auth/login", validateRequest(loginSchema), login);
 
@@ -63,10 +71,14 @@ UserRoutes.get(
 //   deleteUser
 // );
 
-// UserRoutes.delete(
-//   "/users",
-//   authenticateUser, //isAdmin,
-//   deleteAllUsers
-// );
+UserRoutes.delete(
+  "/users",
+  authenticateUser, //isAdmin,
+  async (req, res) => {
+    await UserModel.deleteMany({});
+    await RefreshTokenModel.deleteMany({});
+    res.status(200).json({ message: "All users deleted successfully" });
+  }
+);
 
 export default UserRoutes;

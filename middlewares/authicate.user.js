@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
-import RefreshToken from "../modules/refresh_token/model/refresh_token.model.js";
+import RefreshTokenModel from "../modules/refresh_token/model/refresh_token.model.js";
 import { StatusCodes } from "http-status-codes";
-import generateTokens from "../utils/generate.tokens.js";
 
 // Helper function to generate a new access token
 const generateNewAccessToken = (userId) => {
@@ -21,6 +20,8 @@ const authenticateUser = async (req, res, next) => {
 
     // Extract refresh token from cookies
     const refreshToken = req.cookies?.refreshToken;
+    let accessTokenDecodedUser = null;
+    let refreshTokenDecodedUser = null;
 
     // If no tokens are provided, deny access
     if (!accessToken && !refreshToken) {
@@ -28,43 +29,39 @@ const authenticateUser = async (req, res, next) => {
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Authentication token is required" });
     }
-
-    let accessTokenDecodedUser = null;
-    let refreshTokenDecodedUser = null;
-
-    // Verify access token if available
-    if (accessToken) {
+    if (accessToken && refreshToken) {
+      // authenticate user with refresh token and generate new access token
       try {
         accessTokenDecodedUser = jwt.verify(
           accessToken,
           process.env.ACCESS_TOKEN_SECRET
         );
-
-        const tokens = await generateTokens(
-          accessTokenDecodedUser.userId,
-          accessTokenDecodedUser.role
+        refreshTokenDecodedUser = jwt.verify(
+          refreshToken,
+          process.env.REFRESH_TOKEN_SECRET
         );
-        res.setHeader("Authorization", `Bearer ${tokens.accessToken}`);
-        // Set refresh token as HTTP-only cookie
-        res.cookie("refreshToken", tokens.refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "Strict",
-          expires: tokens.expiryDate,
-        });
-        req.user = accessTokenDecodedUser;
-        return next(); // If access token is valid, proceed to next middleware
-      } catch (error) {
-        if (!(error instanceof jwt.TokenExpiredError)) {
-          console.log(error);
-          return res
-            .status(StatusCodes.FORBIDDEN)
-            .json({ message: "Invalid access token" });
+        // user is trying to use someone else's token
+        if (accessTokenDecodedUser.userId !== refreshTokenDecodedUser.userId) {
+          return res.status(StatusCodes.UNAUTHORIZED).json({
+            message: "Invalid access token",
+          });
         }
+        let isRefreshTokenValid = await validateRefreshToken(refreshToken);
+        if (!isRefreshTokenValid) {
+          return res.status(StatusCodes.UNAUTHORIZED).json({
+            message:
+              "Refresh token reuse detected. All sessions have been terminated for security.",
+          });
+        }
+        req.user = accessTokenDecodedUser;
+        return next();
+      } catch (error) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Refresh token has expired" });
       }
     }
-
-    // Proceed with refresh token validation
+    // validate the refresh token
     if (refreshToken) {
       try {
         // Verify refresh token
@@ -74,21 +71,13 @@ const authenticateUser = async (req, res, next) => {
         );
 
         // Check if refresh token exists in the database
-        const storedToken = await RefreshToken.findOne({
-          userId: refreshTokenDecodedUser.userId,
-          token: refreshToken,
-        });
-
-        if (!storedToken) {
-          await RefreshToken.deleteMany({
-            userId: refreshTokenDecodedUser.userId,
-          });
+        let isRefreshTokenValid = await validateRefreshToken(refreshToken);
+        if (!isRefreshTokenValid) {
           return res.status(StatusCodes.UNAUTHORIZED).json({
             message:
               "Refresh token reuse detected. All sessions have been terminated for security.",
           });
         }
-
         // Generate a new access token
         const newAccessToken = generateNewAccessToken(
           refreshTokenDecodedUser.userId
@@ -98,15 +87,15 @@ const authenticateUser = async (req, res, next) => {
 
         return next();
       } catch (error) {
-        if (error instanceof jwt.TokenExpiredError) {
-          return res
-            .status(StatusCodes.UNAUTHORIZED)
-            .json({ message: "Refresh token has expired" });
-        }
         return res
-          .status(StatusCodes.FORBIDDEN)
-          .json({ message: "Invalid refresh token" });
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Refresh token has expired" });
       }
+    } else {
+      // the user has access token but not refresh token
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        message: "Refresh token is required Please login again",
+      });
     }
   } catch (error) {
     return res
@@ -116,3 +105,23 @@ const authenticateUser = async (req, res, next) => {
 };
 
 export default authenticateUser;
+
+const validateRefreshToken = async (refreshToken) => {
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const storedToken = await RefreshTokenModel.findOne({
+      userId: decoded.userId,
+      token: refreshToken,
+    });
+    if (!storedToken) {
+      console.log(storedToken);
+      await RefreshTokenModel.deleteMany({
+        userId: refreshTokenDecodedUser.userId,
+      });
+      return false;
+    }
+    return decoded;
+  } catch (error) {
+    return null;
+  }
+};

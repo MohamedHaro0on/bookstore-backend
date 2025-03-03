@@ -62,7 +62,7 @@ export const getUsersSchema = {
 };
 
 export const getUserByIdSchema = {
-  query: Joi.object({
+  params: Joi.object({
     id: ObjectId().required().messages({
       "any.required": "User ID is required",
       "string.pattern.name": "Invalid user ID format",

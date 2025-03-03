@@ -6,6 +6,7 @@ import GetByIdHandler from "../../../utils/factory/get.by.id.handler.js";
 import createHandler from "../../../utils/factory/create.handler.js";
 import GetHandler from "../../../utils/factory/get.handler.js";
 import generateTokens from "../../../utils/generate.tokens.js";
+import RefreshTokenModel from "../../refresh_token/model/refresh_token.model.js";
 
 // Register a new user
 const register = createHandler(UserModel);
@@ -83,7 +84,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 const logout = asyncHandler(async (req, res) => {
   const { refreshToken } = req.cookies; // Get refresh token from cookies
 
-  await Token.findOneAndDelete({ token: refreshToken });
+  await RefreshTokenModel.findOneAndDelete({ token: refreshToken });
 
   // Clear the refresh token cookie
   res.clearCookie("refreshToken", {
@@ -99,4 +100,5 @@ const logout = asyncHandler(async (req, res) => {
 const getUserById = GetByIdHandler(UserModel);
 
 const getUsers = GetHandler(UserModel);
+
 export { register, login, refreshToken, logout, getUserById, getUsers };

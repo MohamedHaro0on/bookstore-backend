@@ -27,5 +27,22 @@ export const createBookSchema = Joi.object({
     }),})}
 
 
+export const getBookSchema = {
+  params: Joi.object({
+    id: ObjectId().required().messages({
+      "any.required": "Book ID is required",
+      "string.pattern.name": "Invalid book ID format",
+    }),
+  }),
+};
 
+
+export const deleteBookSchema = {
+  params: Joi.object({
+    id: ObjectId().required().messages({
+      "any.required": "Book ID is required",
+      "string.pattern.name": "Invalid book ID format",
+    }),
+  }),
+};
 

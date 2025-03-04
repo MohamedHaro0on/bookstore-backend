@@ -7,6 +7,7 @@ import createHandler from "../../../utils/factory/create.handler.js";
 import GetHandler from "../../../utils/factory/get.handler.js";
 import generateTokens from "../../../utils/generate.tokens.js";
 import RefreshTokenModel from "../../refresh_token/model/refresh_token.model.js";
+import CartModel from "../../cart/model/cart.model.js";
 
 // Register a new user
 const register = createHandler(UserModel);
@@ -40,11 +41,7 @@ const login = asyncHandler(async (req, res) => {
 
   res.status(StatusCodes.ACCEPTED).json({
     message: "Login successful",
-    user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    },
+    user,
     expires: tokens.expiryDate,
     accessToken: tokens.accessToken,
   });

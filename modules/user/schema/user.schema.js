@@ -52,6 +52,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toObject: { virtuals: true }, // Add this
   }
 );
 
@@ -73,4 +74,24 @@ userSchema.methods.toJSON = function () {
   return employee;
 };
 
+// Virtual populate for cart
+userSchema.virtual("cart", {
+  ref: "Cart",
+  localField: "_id",
+  foreignField: "user",
+  justOne: true,
+  match: { status: "active" },
+});
+
+// Middleware to automatically populate cart
+userSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "cart",
+    populate: {
+      path: "items.book",
+      model: "Book",
+    },
+  }).select("-user");
+  next();
+});
 export default userSchema;

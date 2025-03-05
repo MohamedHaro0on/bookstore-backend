@@ -9,6 +9,7 @@ import routeNotImplementedHandler from './handlers/notImplementedRoute.handler.j
 import bookRouter from './modules/book/routes/book.routes.js';
 import cartRouter from './modules/cart/routes/cart.routes.js';
 import UserRoutes from './modules/user/routes/user.routes.js';
+import ReviewRoutes from './modules/review/routes/review.routes.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/user', UserRoutes);
 app.use('/book/', bookRouter);
 app.use('/cart', cartRouter);
+app.use('/review', ReviewRoutes);
 // Not implemented Errors :
 app.all('*', routeNotImplementedHandler);
 // Global error handling middleware for express ;

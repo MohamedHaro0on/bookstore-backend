@@ -1,3 +1,4 @@
+/* eslint-disable node/prefer-global/process */
 import jwt from 'jsonwebtoken';
 import RefreshTokenModel from '../modules/refresh_token/model/refresh_token.model.js';
 

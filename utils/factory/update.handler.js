@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import expressAsyncHandler from 'express-async-handler';
 import {StatusCodes} from 'http-status-codes';
 import ApiError from '../api.error.js';

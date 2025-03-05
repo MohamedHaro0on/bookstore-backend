@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import {StatusCodes} from 'http-status-codes';
 import mongoose from 'mongoose';
 import ApiError from '../utils/api.error.js';

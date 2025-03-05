@@ -1,6 +1,6 @@
 import expressAsyncHandler from 'express-async-handler';
 import {StatusCodes} from 'http-status-codes';
-import ApiError from '../utils/api.error';
+import ApiError from '../utils/api.error.js';
 
 const allowedFor = (...roles) => {
   return expressAsyncHandler(async (req, res, next) => {

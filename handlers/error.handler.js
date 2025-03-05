@@ -2,7 +2,7 @@
 import {StatusCodes} from 'http-status-codes';
 import mongoose from 'mongoose';
 import ApiError from '../utils/api.error.js';
-
+import process from 'process';
 // Handle different types of Mongoose errors
 const handleMongooseError = (err) => {
   // Mongoose Validation Error

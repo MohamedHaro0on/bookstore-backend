@@ -1,7 +1,6 @@
-/* eslint-disable node/prefer-global/process */
 import jwt from 'jsonwebtoken';
 import RefreshTokenModel from '../modules/refresh_token/model/refresh_token.model.js';
-
+import process from 'process';
 // Generate tokens
 const generateTokens = async (userId, role) => {
   const payload = {userId, role};

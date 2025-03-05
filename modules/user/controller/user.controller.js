@@ -7,7 +7,7 @@ import GetHandler from '../../../utils/factory/get.handler.js';
 import generateTokens from '../../../utils/generate.tokens.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
 import UserModel from '../model/user.model.js';
-
+import process from 'process';
 // Register a new user
 const register = createHandler(UserModel);
 

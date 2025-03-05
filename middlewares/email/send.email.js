@@ -1,9 +1,8 @@
-/* eslint-disable node/prefer-global/process */
 import expressAsyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import emailTemplate from './email.template.js';
-
+import process from 'process';
 const sendEmail = expressAsyncHandler(async (req, res, next) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',

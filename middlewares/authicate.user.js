@@ -1,12 +1,34 @@
 import {StatusCodes} from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import RefreshTokenModel from '../modules/refresh_token/model/refresh_token.model.js';
+import process from 'process';
 
 // Helper function to generate a new access token
 const generateNewAccessToken = (userId) => {
   return jwt.sign({userId}, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRY
   });
+};
+
+const validateRefreshToken = async (refreshToken) => {
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const storedToken = await RefreshTokenModel.findOne({
+      userId: decoded.userId,
+      token: refreshToken
+    });
+    if (!storedToken) {
+      console.log(storedToken);
+      await RefreshTokenModel.deleteMany({
+        userId: decoded.userId
+      });
+      return false;
+    }
+    return decoded;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 };
 
 // Middleware to authenticate user
@@ -56,6 +78,7 @@ const authenticateUser = async (req, res, next) => {
         req.user = accessTokenDecodedUser;
         return next();
       } catch (error) {
+        console.log(error);
         return res
           .status(StatusCodes.UNAUTHORIZED)
           .json({message: 'Refresh token has expired'});
@@ -87,6 +110,7 @@ const authenticateUser = async (req, res, next) => {
 
         return next();
       } catch (error) {
+        console.log(error);
         return res
           .status(StatusCodes.UNAUTHORIZED)
           .json({message: 'Refresh token has expired'});
@@ -98,6 +122,7 @@ const authenticateUser = async (req, res, next) => {
       });
     }
   } catch (error) {
+    console.log(error);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({message: 'Internal server error'});
@@ -105,23 +130,3 @@ const authenticateUser = async (req, res, next) => {
 };
 
 export default authenticateUser;
-
-const validateRefreshToken = async (refreshToken) => {
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const storedToken = await RefreshTokenModel.findOne({
-      userId: decoded.userId,
-      token: refreshToken
-    });
-    if (!storedToken) {
-      console.log(storedToken);
-      await RefreshTokenModel.deleteMany({
-        userId: refreshTokenDecodedUser.userId
-      });
-      return false;
-    }
-    return decoded;
-  } catch (error) {
-    return null;
-  }
-};

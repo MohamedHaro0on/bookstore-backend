@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Routes :
-app.use('/api/v1/user', UserRoutes);
+app.use('/users', UserRoutes);
 app.use('/book/', bookRouter);
 app.use('/cart', cartRouter);
 app.use('/review', ReviewRoutes);

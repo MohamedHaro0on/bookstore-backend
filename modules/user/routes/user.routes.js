@@ -11,7 +11,8 @@ import {
   login,
   logout,
   refreshToken,
-  register
+  register,
+  verifyEmail
 } from '../controller/user.controller.js';
 import UserModel from '../model/user.model.js';
 import {
@@ -19,7 +20,8 @@ import {
   deleteUserSchema,
   getUserByIdSchema,
   getUsersSchema,
-  loginSchema
+  loginSchema,
+  verifyEmailSchema
 } from '../validation/user.validation.js';
 
 const UserRoutes = express.Router();
@@ -36,17 +38,22 @@ UserRoutes.post('/auth/login', validateRequest(loginSchema), login);
 
 UserRoutes.post('/auth/refresh-token', refreshToken);
 UserRoutes.post('/auth/logout', authenticateUser, logout);
-
 // Protected routes
 UserRoutes.get(
-  '/users',
+  '/verify-email/:token',
+  validateRequest(verifyEmailSchema),
+  verifyEmail
+);
+// Protected routes
+UserRoutes.get(
+  '/get',
   authenticateUser,
   validateRequest(getUsersSchema),
   getUsers
 );
 
 UserRoutes.get(
-  '/users/:id',
+  '/:id',
   authenticateUser,
   validateRequest(getUserByIdSchema),
   getUserById
@@ -61,7 +68,7 @@ UserRoutes.get(
 
 // // Admin routes
 UserRoutes.delete(
-  '/users/:id',
+  '/:id',
   authenticateUser,
   allowedFor('admin'),
   validateRequest(deleteUserSchema)
@@ -69,7 +76,7 @@ UserRoutes.delete(
 );
 
 UserRoutes.delete(
-  '/users',
+  '/delete-users',
   authenticateUser,
   allowedFor('admin'),
   async (req, res) => {

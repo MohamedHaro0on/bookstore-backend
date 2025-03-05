@@ -115,3 +115,12 @@ export const changeRoleSchema = {
     })
   })
 };
+
+export const verifyEmailSchema = {
+  params: Joi.object({
+    token: Joi.string().required().messages({
+      'string.empty': 'Token is required',
+      'any.required': 'Token is required'
+    })
+  })
+};

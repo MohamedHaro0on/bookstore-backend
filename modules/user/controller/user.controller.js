@@ -92,9 +92,25 @@ const logout = asyncHandler(async (req, res) => {
   res.status(StatusCodes.ACCEPTED).json({message: 'Logged out successfully'});
 });
 
+// verfiy email
+const verifyEmail = asyncHandler(async (req, res) => {
+  const {token} = req.params;
+
+  const email = jwt.verify(token, process.env.EMAIL_SECRET_KEY);
+
+  const user = await UserModel.findOne({email});
+  if (!user) {
+    return res.status(StatusCodes.NOT_FOUND).json({message: 'User not found'});
+  }
+
+  user.isEmailVerfied = true;
+  await user.save();
+
+  res.status(StatusCodes.ACCEPTED).json({message: 'Email verified successfully'});
+});
 // Get current user
 const getUserById = GetByIdHandler(UserModel);
 
 const getUsers = GetHandler(UserModel);
 
-export {getUserById, getUsers, login, logout, refreshToken, register};
+export {getUserById, getUsers, login, logout, refreshToken, register , verifyEmail};

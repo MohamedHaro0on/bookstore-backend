@@ -1,3 +1,4 @@
+/* eslint-disable node/prefer-global/process */
 import mongoose from 'mongoose';
 
 const DBconnection = () => {
@@ -7,10 +8,11 @@ const DBconnection = () => {
       .then((con) => {
         console.log('the connection was a suscessfull', con.connection.host);
       })
-      .catch((e) => {
+      .catch(() => {
         process.exit();
       });
   } catch (e) {
+    console.log('the connection failed : ', e);
     process.exit();
   }
 };

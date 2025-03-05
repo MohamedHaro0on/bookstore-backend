@@ -1,10 +1,10 @@
-import { StatusCodes } from "http-status-codes";
-import errorHandler from "../handlers/error.handler.js";
-import ApiError from "../utils/api.error.js";
+import {StatusCodes} from 'http-status-codes';
+import errorHandler from '../handlers/error.handler.js';
+import ApiError from '../utils/api.error.js';
 
 const validateRequest = (schema) => {
   return async (req, res, next) => {
-    const validationOptions = { abortEarly: false }; // Validate all fields, not just the first error
+    const validationOptions = {abortEarly: false}; // Validate all fields, not just the first error
     try {
       // Validate body, params, and query if they exist in the schema
       if (schema.body) {
@@ -23,7 +23,7 @@ const validateRequest = (schema) => {
       let customError = null;
       if (error.details) {
         customError = new ApiError(
-          error.details.map((detail) => detail.message).join(", "),
+          error.details.map((detail) => detail.message).join(', '),
           StatusCodes.BAD_REQUEST
         );
         errorHandler(customError, req, res, next);

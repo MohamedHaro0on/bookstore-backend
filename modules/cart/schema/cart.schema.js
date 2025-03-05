@@ -1,62 +1,62 @@
-import mongoose from "mongoose";
-import BookModel from "../../book/model/book.model.js";
+import mongoose from 'mongoose';
+import BookModel from '../../book/model/book.model.js';
 
 const CartItemSchema = new mongoose.Schema({
   book: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Book",
-    required: true,
+    ref: 'Book',
+    required: true
   },
   quantity: {
     type: Number,
     required: true,
     min: 1,
-    default: 1,
+    default: 1
   },
   price: {
     type: Number,
     required: true,
     min: 0,
-    default: 0, // Add default value to prevent validation error
+    default: 0 // Add default value to prevent validation error
   },
   itemTotal: {
     // Added to store total price for this item
     type: Number,
     required: true,
-    default: 0,
-  },
+    default: 0
+  }
 });
 
 const CartSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
-    unique: true,
+    unique: true
   },
   items: [CartItemSchema],
   cartTotalPrice: {
     type: Number,
     required: true,
-    default: 0,
+    default: 0
   },
   status: {
     type: String,
-    enum: ["active", "abandoned", "completed"],
-    default: "active",
+    enum: ['active', 'abandoned', 'completed'],
+    default: 'active'
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   expiresAt: {
     type: Date,
-    default: () => new Date(+new Date() + 7 * 24 * 60 * 60 * 1000),
-  },
+    default: () => new Date(+new Date() + 7 * 24 * 60 * 60 * 1000)
+  }
 });
 
 // Calculate item total price
@@ -64,7 +64,7 @@ async function calculateItemPrice(item) {
   try {
     const book = await BookModel.findById(item.book);
     if (!book) {
-      throw new Error("Book not found");
+      throw new Error('Book not found');
     }
     item.price = book.price; // Set the individual item price
     item.itemTotal = book.price * item.quantity; // Calculate total for this item
@@ -75,7 +75,7 @@ async function calculateItemPrice(item) {
 }
 
 // Pre-save middleware for the main cart
-CartSchema.pre("save", async function (next) {
+CartSchema.pre('save', async function (next) {
   try {
     this.updatedAt = new Date();
 
@@ -104,7 +104,7 @@ CartSchema.methods.addItem = async function (bookId, quantity) {
   try {
     const book = await BookModel.findById(bookId);
     if (!book) {
-      throw new Error("Book not found");
+      throw new Error('Book not found');
     }
 
     const existingItem = this.items.find(
@@ -119,7 +119,7 @@ CartSchema.methods.addItem = async function (bookId, quantity) {
         book: bookId,
         quantity,
         price: book.price,
-        itemTotal: book.price * quantity,
+        itemTotal: book.price * quantity
       };
       this.items.push(newItem);
     }

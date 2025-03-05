@@ -1,6 +1,6 @@
-import { StatusCodes } from "http-status-codes";
-import mongoose from "mongoose";
-import ApiError from "../utils/api.error.js";
+import {StatusCodes} from 'http-status-codes';
+import mongoose from 'mongoose';
+import ApiError from '../utils/api.error.js';
 
 // Handle different types of Mongoose errors
 const handleMongooseError = (err) => {
@@ -8,7 +8,7 @@ const handleMongooseError = (err) => {
   if (err instanceof mongoose.Error.ValidationError) {
     const errors = Object.values(err.errors).map((el) => el.message);
     return new ApiError(
-      `Validation failed: ${errors.join(", ")}`,
+      `Validation failed: ${errors.join(', ')}`,
       StatusCodes.BAD_REQUEST
     );
   }
@@ -35,16 +35,16 @@ const handleMongooseError = (err) => {
 
 // Handle JWT Errors
 const handleJWTError = (err) => {
-  if (err.name === "JsonWebTokenError") {
+  if (err.name === 'JsonWebTokenError') {
     return new ApiError(
-      "Invalid token. Please log in again",
+      'Invalid token. Please log in again',
       StatusCodes.UNAUTHORIZED
     );
   }
 
-  if (err.name === "TokenExpiredError") {
+  if (err.name === 'TokenExpiredError') {
     return new ApiError(
-      "Your token has expired. Please log in again",
+      'Your token has expired. Please log in again',
       StatusCodes.UNAUTHORIZED
     );
   }
@@ -72,13 +72,13 @@ const errorHandler = (err, req, res, next) => {
     // If error is still not an ApiError, create generic error
     if (!(error instanceof ApiError)) {
       error = new ApiError(
-        "Something went wrong",
+        'Something went wrong',
         StatusCodes.INTERNAL_SERVER_ERROR
       );
     }
   }
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     sendErrForDev(error, res);
   } else {
     sendErrForProd(error, res);
@@ -90,14 +90,14 @@ const sendErrForDev = (err, res) => {
     status: err.status,
     error: err,
     message: err.message,
-    stack: err.stack,
+    stack: err.stack
   });
 };
 
 const sendErrForProd = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
-    message: err.message,
+    message: err.message
   });
 };
 

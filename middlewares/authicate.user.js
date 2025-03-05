@@ -1,11 +1,11 @@
-import jwt from "jsonwebtoken";
-import RefreshTokenModel from "../modules/refresh_token/model/refresh_token.model.js";
-import { StatusCodes } from "http-status-codes";
+import {StatusCodes} from 'http-status-codes';
+import jwt from 'jsonwebtoken';
+import RefreshTokenModel from '../modules/refresh_token/model/refresh_token.model.js';
 
 // Helper function to generate a new access token
 const generateNewAccessToken = (userId) => {
-  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+  return jwt.sign({userId}, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRY
   });
 };
 
@@ -13,9 +13,9 @@ const generateNewAccessToken = (userId) => {
 const authenticateUser = async (req, res, next) => {
   try {
     // Extract access token from Authorization header
-    const authHeader = req.headers["authorization"];
-    const accessToken = authHeader?.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
+    const authHeader = req.headers.authorization;
+    const accessToken = authHeader?.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
       : null;
 
     // Extract refresh token from cookies
@@ -27,7 +27,7 @@ const authenticateUser = async (req, res, next) => {
     if (!accessToken && !refreshToken) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
-        .json({ message: "Authentication token is required" });
+        .json({message: 'Authentication token is required'});
     }
     if (accessToken && refreshToken) {
       // authenticate user with refresh token and generate new access token
@@ -43,14 +43,14 @@ const authenticateUser = async (req, res, next) => {
         // user is trying to use someone else's token
         if (accessTokenDecodedUser.userId !== refreshTokenDecodedUser.userId) {
           return res.status(StatusCodes.UNAUTHORIZED).json({
-            message: "Invalid access token",
+            message: 'Invalid access token'
           });
         }
-        let isRefreshTokenValid = await validateRefreshToken(refreshToken);
+        const isRefreshTokenValid = await validateRefreshToken(refreshToken);
         if (!isRefreshTokenValid) {
           return res.status(StatusCodes.UNAUTHORIZED).json({
             message:
-              "Refresh token reuse detected. All sessions have been terminated for security.",
+              'Refresh token reuse detected. All sessions have been terminated for security.'
           });
         }
         req.user = accessTokenDecodedUser;
@@ -58,7 +58,7 @@ const authenticateUser = async (req, res, next) => {
       } catch (error) {
         return res
           .status(StatusCodes.UNAUTHORIZED)
-          .json({ message: "Refresh token has expired" });
+          .json({message: 'Refresh token has expired'});
       }
     }
     // validate the refresh token
@@ -71,36 +71,36 @@ const authenticateUser = async (req, res, next) => {
         );
 
         // Check if refresh token exists in the database
-        let isRefreshTokenValid = await validateRefreshToken(refreshToken);
+        const isRefreshTokenValid = await validateRefreshToken(refreshToken);
         if (!isRefreshTokenValid) {
           return res.status(StatusCodes.UNAUTHORIZED).json({
             message:
-              "Refresh token reuse detected. All sessions have been terminated for security.",
+              'Refresh token reuse detected. All sessions have been terminated for security.'
           });
         }
         // Generate a new access token
         const newAccessToken = generateNewAccessToken(
           refreshTokenDecodedUser.userId
         );
-        res.setHeader("Authorization", `Bearer ${newAccessToken}`);
+        res.setHeader('Authorization', `Bearer ${newAccessToken}`);
         req.user = refreshTokenDecodedUser;
 
         return next();
       } catch (error) {
         return res
           .status(StatusCodes.UNAUTHORIZED)
-          .json({ message: "Refresh token has expired" });
+          .json({message: 'Refresh token has expired'});
       }
     } else {
       // the user has access token but not refresh token
       return res.status(StatusCodes.UNAUTHORIZED).json({
-        message: "Refresh token is required Please login again",
+        message: 'Refresh token is required Please login again'
       });
     }
   } catch (error) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: "Internal server error" });
+      .json({message: 'Internal server error'});
   }
 };
 
@@ -111,12 +111,12 @@ const validateRefreshToken = async (refreshToken) => {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const storedToken = await RefreshTokenModel.findOne({
       userId: decoded.userId,
-      token: refreshToken,
+      token: refreshToken
     });
     if (!storedToken) {
       console.log(storedToken);
       await RefreshTokenModel.deleteMany({
-        userId: refreshTokenDecodedUser.userId,
+        userId: refreshTokenDecodedUser.userId
       });
       return false;
     }

@@ -1,13 +1,13 @@
 // the list of the exculded parameters ;
 const excludedParameters = [
-  "limit",
-  "size",
-  "page",
-  "sort",
-  "fields",
-  "keyword",
+  'limit',
+  'size',
+  'page',
+  'sort',
+  'fields',
+  'keyword'
 ];
-const removeAttr = "-createdAt -updatedAt -__v";
+const removeAttr = '-createdAt -updatedAt -__v';
 
 class ApiFeatuers {
   constructor(mongooseQuery, reqQueryObject) {
@@ -17,7 +17,7 @@ class ApiFeatuers {
 
   filter = () => {
     // Making a deep copy of the this.reqQueryObject object ;
-    const queryObject = { ...this.reqQueryObject };
+    const queryObject = {...this.reqQueryObject};
     // exculded the un-needed parameters from going to the query ;
     excludedParameters.forEach((element) => delete queryObject[element]);
 
@@ -38,15 +38,15 @@ class ApiFeatuers {
     // Sorting
     if (this.reqQueryObject.sort) {
       const sortBy = this.reqQueryObject.sort
-        .split(",")
+        .split(',')
         .map((field) => field.trim()) // Trim whitespace
         .filter((field) => field) // Remove empty strings
-        .join(" "); // Join into a single string
+        .join(' '); // Join into a single string
 
       this.mongooseQuery = this.mongooseQuery.sort(sortBy);
     } else {
       // Default sorting (if needed)
-      this.mongooseQuery = this.mongooseQuery.sort("createdAt");
+      this.mongooseQuery = this.mongooseQuery.sort('createdAt');
     }
     return this;
   };
@@ -57,11 +57,11 @@ class ApiFeatuers {
       const query = {};
       query.$or = [
         {
-          name: { $regex: this.reqQueryObject.keyword, $options: "i" },
+          name: {$regex: this.reqQueryObject.keyword, $options: 'i'}
         },
         {
-          description: { $regex: this.reqQueryObject.keyword, $options: "i" },
-        },
+          description: {$regex: this.reqQueryObject.keyword, $options: 'i'}
+        }
       ];
       this.mongooseQuery = this.mongooseQuery.find(query);
     }
@@ -72,7 +72,7 @@ class ApiFeatuers {
     // Fields Linting
     if (this.reqQueryObject.fields) {
       // If fields are specified:
-      const fields = this.reqQueryObject.fields.split(",").join(" "); // Join into a single string
+      const fields = this.reqQueryObject.fields.split(',').join(' '); // Join into a single string
 
       this.mongooseQuery = this.mongooseQuery.select(fields); // Correct usage
     } else {
@@ -95,7 +95,7 @@ class ApiFeatuers {
       skip,
       page,
       totalCount,
-      totalPages,
+      totalPages
     };
     this.mongooseQuery.skip(pagination.skip).limit(pagination.limit);
     this.paginationResult = pagination;

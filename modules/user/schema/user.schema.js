@@ -23,12 +23,6 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      validate: {
-        validator(v) {
-          return /^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-z]{2,7}$/i.test(v);
-        },
-        message: (props) => `${props.value} is not a valid email!`
-      }
     },
     isEmailVerfied: {
       type: Boolean,
@@ -56,28 +50,26 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toObject: {virtuals: true} // Add this
+    toObject: { virtuals: true } // Add this
   }
 );
 
-userSchema.index({email: 1});
-userSchema.index({username: 1});
+userSchema.index({ email: 1 });
+userSchema.index({ username: 1 });
 
 userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 8);
-  await CartModel.create({user: this._id, status: 'active', items: []});
+  await CartModel.create({ user: this._id, status: 'active', items: [] });
   next();
 });
 
-userSchema.post('save', async (doc, next) => {
-  console.log('email : ', doc.email);
+userSchema.post('save', async (doc, _) => {
   sendEmail(
     doc.email,
     'Welcome to our platform',
     emailTemplate
   );
   console.log('Email sent');
-  next();
 });
 userSchema.methods.verifyPassword = async function (password) {
   return bcrypt.compareSync(password, this.password);
@@ -90,24 +82,19 @@ userSchema.methods.toJSON = function () {
   return employee;
 };
 
-// Virtual populate for cart
+// Add a virtual field to your user schema
 userSchema.virtual('cart', {
   ref: 'Cart',
   localField: '_id',
   foreignField: 'user',
-  justOne: true,
-  match: {status: 'active'}
+  justOne: true
 });
 
 // Middleware to automatically populate cart
-userSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: 'cart',
-    populate: {
-      path: 'items.book',
-      model: 'Book'
-    }
-  }).select('-user');
+userSchema.pre('findOne', async function (next) {
+  this.populate('cart');
   next();
 });
+
+
 export default userSchema;

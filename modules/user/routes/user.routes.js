@@ -80,7 +80,7 @@ UserRoutes.delete(
   async (req, res) => {
     await UserModel.deleteMany({});
     await RefreshTokenModel.deleteMany({});
-    res.status(200).json({message: 'All users deleted successfully'});
+    res.status(200).json({ message: 'All users deleted successfully' });
   }
 );
 

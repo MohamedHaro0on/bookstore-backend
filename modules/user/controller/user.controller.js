@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import {StatusCodes} from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import createHandler from '../../../utils/factory/create.handler.js';
 import GetByIdHandler from '../../../utils/factory/get.by.id.handler.js';
@@ -13,20 +13,20 @@ const register = createHandler(UserModel);
 
 // Login user
 const login = asyncHandler(async (req, res) => {
-  const {email, password} = req.body;
-
-  const user = await UserModel.findOne({email});
+  const { email, password } = req.body;
+  console.log("this is the request body ", req.body);
+  const user = await UserModel.findOne({ email });
   if (!user) {
     return res
       .status(StatusCodes.UNAUTHORIZED)
-      .json({message: 'Invalid credentials'});
+      .json({ message: 'Invalid credentials' });
   }
   const isMatch = await user.verifyPassword(password);
 
   if (!isMatch) {
     return res
       .status(StatusCodes.UNAUTHORIZED)
-      .json({message: 'Invalid credentials'});
+      .json({ message: 'Invalid credentials' });
   }
   const tokens = await generateTokens(user._id, user.role);
 
@@ -48,7 +48,7 @@ const login = asyncHandler(async (req, res) => {
 
 // Refresh token
 const refreshToken = asyncHandler(async (req, res) => {
-  const {refreshToken} = req.cookies; // Get refresh token from cookies
+  const { refreshToken } = req.cookies; // Get refresh token from cookies
 
   const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
@@ -57,7 +57,7 @@ const refreshToken = asyncHandler(async (req, res) => {
     token: refreshToken
   });
   if (!storedToken) {
-    return res.status(403).json({message: 'Invalid token'});
+    return res.status(403).json({ message: 'Invalid token' });
   }
 
   const tokens = await generateTokens(decoded.userId);
@@ -78,9 +78,9 @@ const refreshToken = asyncHandler(async (req, res) => {
 
 // Logout user
 const logout = asyncHandler(async (req, res) => {
-  const {refreshToken} = req.cookies; // Get refresh token from cookies
+  const { refreshToken } = req.cookies; // Get refresh token from cookies
 
-  await RefreshTokenModel.findOneAndDelete({token: refreshToken});
+  await RefreshTokenModel.findOneAndDelete({ token: refreshToken });
 
   // Clear the refresh token cookie
   res.clearCookie('refreshToken', {
@@ -89,28 +89,31 @@ const logout = asyncHandler(async (req, res) => {
     sameSite: 'Strict'
   });
 
-  res.status(StatusCodes.ACCEPTED).json({message: 'Logged out successfully'});
+  res.status(StatusCodes.ACCEPTED).json({ message: 'Logged out successfully' });
 });
 
 // verfiy email
 const verifyEmail = asyncHandler(async (req, res) => {
-  const {token} = req.params;
+  const { token } = req.params;
+  console.log('this is the token ', token)
+  const decodedToken = jwt.verify(token, process.env.EMAIL_SECRET_KEY);
+  console.log('this is the decoded token ', decodedToken)
+  if (!decodedToken) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid token' });
+  }
+  console.log('this is the decoded token 11111 ', decodedToken)
 
-  const email = jwt.verify(token, process.env.EMAIL_SECRET_KEY);
-
-  const user = await UserModel.findOne({email});
+  const user = await UserModel.findOneAndUpdate({ email: decodedToken, isEmailVerfied: false }, { isEmailVerfied: true }, { new: true });
+  console.log("this is the verify email user 2222 ", user);
   if (!user) {
-    return res.status(StatusCodes.NOT_FOUND).json({message: 'User not found'});
+    return res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
   }
 
-  user.isEmailVerfied = true;
-  await user.save();
-
-  res.status(StatusCodes.ACCEPTED).json({message: 'Email verified successfully'});
+  res.status(StatusCodes.ACCEPTED).json({ message: 'Email verified successfully' });
 });
 // Get current user
 const getUserById = GetByIdHandler(UserModel);
 
 const getUsers = GetHandler(UserModel);
 
-export {getUserById, getUsers, login, logout, refreshToken, register , verifyEmail};
+export { getUserById, getUsers, login, logout, refreshToken, register, verifyEmail };

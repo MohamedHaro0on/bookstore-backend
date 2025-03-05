@@ -95,31 +95,6 @@ CartSchema.pre('save', async function (next) {
   }
 });
 
-// Add methods to handle cart operations
-CartSchema.methods.addItem = async function (bookId, quantity) {
-  const book = await BookModel.findById(bookId);
-  if (!book) {
-    throw new Error('Book not found');
-  }
 
-  const existingItem = this.items.find(
-    (item) => item.book.toString() === bookId.toString()
-  );
-
-  if (existingItem) {
-    existingItem.quantity += quantity;
-    await calculateItemPrice(existingItem);
-  } else {
-    const newItem = {
-      book: bookId,
-      quantity,
-      price: book.price,
-      itemTotal: book.price * quantity
-    };
-    this.items.push(newItem);
-  }
-
-  return this.save();
-};
 
 export default CartSchema;

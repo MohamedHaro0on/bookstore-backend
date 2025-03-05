@@ -1,9 +1,11 @@
+/* eslint-disable style/object-curly-spacing */
 /* eslint-disable node/prefer-global/process */
 
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (email, subject, HTMLFORM) => {
+  console.log("this is the id from the send Email function ", email)
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -13,10 +15,7 @@ const sendEmail = async (email, subject, HTMLFORM) => {
   });
   try {
     // send mail with defined transport object
-    console.log('this is the process ', process.env);
-    const emailToken = await jwt.sign({ email }, process.env.EMAIL_SECRET_KEY, {
-      expiresIn: '1d'
-    });
+    const emailToken = jwt.sign(email, process.env.EMAIL_SECRET_KEY);
     await transporter.sendMail({
       from: `"Mohamed Ahmed Ali Haroon"<${process.env.email_user_name}>`, // sender address
       to: email, // list of receivers

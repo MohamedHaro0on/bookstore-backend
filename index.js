@@ -1,6 +1,6 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import {config} from 'dotenv';
+import { config } from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
 import DBconnection from './configurations/config.js';

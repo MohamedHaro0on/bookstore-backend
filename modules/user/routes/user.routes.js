@@ -1,7 +1,6 @@
 import express from 'express';
 import allowedFor from '../../../middlewares/allowed.for.js';
 import authenticateUser from '../../../middlewares/authicate.user.js';
-import sendEmail from '../../../middlewares/email/send.email.js';
 
 import validateRequest from '../../../middlewares/validate.request.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
@@ -30,7 +29,6 @@ const UserRoutes = express.Router();
 UserRoutes.post(
   '/auth/register',
   validateRequest(createUserSchema),
-  sendEmail,
   register
 );
 
@@ -76,9 +74,9 @@ UserRoutes.delete(
 );
 
 UserRoutes.delete(
-  '/delete-users',
-  authenticateUser,
-  allowedFor('admin'),
+  '/delete/all',
+  // authenticateUser,
+  // allowedFor('admin'),
   async (req, res) => {
     await UserModel.deleteMany({});
     await RefreshTokenModel.deleteMany({});

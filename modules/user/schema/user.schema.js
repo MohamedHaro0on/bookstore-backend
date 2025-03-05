@@ -1,5 +1,8 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import emailTemplate from '../../../middlewares/email/email.template.js';
+import sendEmail from '../../../middlewares/email/send.email.js';
+import CartModel from '../../cart/model/cart.model.js';
 
 const userSchema = new mongoose.Schema(
   {
@@ -62,6 +65,18 @@ userSchema.index({username: 1});
 
 userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 8);
+  await CartModel.create({user: this._id, status: 'active', items: []});
+  next();
+});
+
+userSchema.post('save', async (doc, next) => {
+  console.log('email : ', doc.email);
+  sendEmail(
+    doc.email,
+    'Welcome to our platform',
+    emailTemplate
+  );
+  console.log('Email sent');
   next();
 });
 userSchema.methods.verifyPassword = async function (password) {

@@ -34,10 +34,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Routes :
-app.use('/users', UserRoutes);
-app.use('/book/', bookRouter);
-app.use('/cart', cartRouter);
-app.use('/review', ReviewRoutes);
+app.use('/users/', UserRoutes);
+app.use('/books/', bookRouter);
+app.use('/carts/', cartRouter);
+app.use('/reviews/', ReviewRoutes);
 // Not implemented Errors :
 app.all('*', routeNotImplementedHandler);
 // Global error handling middleware for express ;

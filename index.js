@@ -27,6 +27,8 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {

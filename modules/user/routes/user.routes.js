@@ -1,7 +1,6 @@
 import express from 'express';
 import allowedFor from '../../../middlewares/allowed.for.js';
 import authenticateUser from '../../../middlewares/authicate.user.js';
-
 import validateRequest from '../../../middlewares/validate.request.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
 import {
@@ -22,15 +21,22 @@ import {
   loginSchema,
   verifyEmailSchema
 } from '../validation/user.validation.js';
+import upload from '../../../middlewares/upload_file/user.js';
+
+
 
 const UserRoutes = express.Router();
 
-// Public routes
 UserRoutes.post(
   '/auth/register',
+  upload.single('avatar'),
   validateRequest(createUserSchema),
+  (req, _, next) => {
+    req.body.avatar = req.file.filename;
+    next();
+  },
   register
-);
+)
 
 UserRoutes.post('/auth/login', validateRequest(loginSchema), login);
 
@@ -61,6 +67,7 @@ UserRoutes.get(
 //   '/users/:id',
 //   authenticateUser,
 //   validateRequest(updateProfileSchema),
+//   upload.single('avatar'),
 //   updateProfile
 // );
 

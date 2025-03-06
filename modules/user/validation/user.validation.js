@@ -24,6 +24,7 @@ export const createUserSchema = {
       'string.empty': 'Password is required',
       'any.required': 'Password is required'
     }),
+    role: Joi.string().valid('user', 'admin'),
     username: Joi.string().trim(),
     phoneNumber: Joi.string().trim(),
     avatar: Joi.string().uri().messages({

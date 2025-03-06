@@ -37,7 +37,6 @@ UserRoutes.post(
   },
   register
 )
-
 UserRoutes.post('/auth/login', validateRequest(loginSchema), login);
 
 UserRoutes.post('/auth/refresh-token', refreshToken);

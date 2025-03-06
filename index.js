@@ -29,6 +29,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+// serving static files :
+app.use("/public/users", express.static("public/users"))
+app.use("/public/books", express.static("public/books"))
+
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {

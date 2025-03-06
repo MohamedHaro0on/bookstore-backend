@@ -21,7 +21,7 @@ import {
   loginSchema,
   verifyEmailSchema
 } from '../validation/user.validation.js';
-import upload from '../../../middlewares/upload_file/user.js';
+import UploadFile from '../../../middlewares/file.upload.js';
 
 
 
@@ -29,7 +29,7 @@ const UserRoutes = express.Router();
 
 UserRoutes.post(
   '/auth/register',
-  upload.single('avatar'),
+  UploadFile('avatar', 'users'),
   validateRequest(createUserSchema),
   (req, _, next) => {
     req.body.avatar = req.file.filename;

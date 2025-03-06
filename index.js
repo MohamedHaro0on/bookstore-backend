@@ -5,7 +5,7 @@ import express from 'express';
 import morgan from 'morgan';
 import DBconnection from './configurations/config.js';
 import errorHandler from './handlers/error.handler.js';
-import routeNotImplementedHandler from './handlers/notImplementedRoute.handler.js';
+import routeNotImplementedHandler from './handlers/not.implemented.route.handler.js';
 import bookRouter from './modules/book/routes/book.routes.js';
 import cartRouter from './modules/cart/routes/cart.routes.js';
 import UserRoutes from './modules/user/routes/user.routes.js';

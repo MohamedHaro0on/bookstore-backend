@@ -1,11 +1,11 @@
-import {StatusCodes} from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import RefreshTokenModel from '../modules/refresh_token/model/refresh_token.model.js';
 import process from 'process';
 
 // Helper function to generate a new access token
 const generateNewAccessToken = (userId) => {
-  return jwt.sign({userId}, process.env.ACCESS_TOKEN_SECRET, {
+  return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRY
   });
 };
@@ -49,7 +49,7 @@ const authenticateUser = async (req, res, next) => {
     if (!accessToken && !refreshToken) {
       return res
         .status(StatusCodes.UNAUTHORIZED)
-        .json({message: 'Authentication token is required'});
+        .json({ message: 'Authentication token is required' });
     }
     if (accessToken && refreshToken) {
       // authenticate user with refresh token and generate new access token
@@ -81,7 +81,7 @@ const authenticateUser = async (req, res, next) => {
         console.log(error);
         return res
           .status(StatusCodes.UNAUTHORIZED)
-          .json({message: 'Refresh token has expired'});
+          .json({ message: 'Refresh token has expired' });
       }
     }
     // validate the refresh token
@@ -113,7 +113,7 @@ const authenticateUser = async (req, res, next) => {
         console.log(error);
         return res
           .status(StatusCodes.UNAUTHORIZED)
-          .json({message: 'Refresh token has expired'});
+          .json({ message: 'Refresh token has expired' });
       }
     } else {
       // the user has access token but not refresh token
@@ -125,7 +125,7 @@ const authenticateUser = async (req, res, next) => {
     console.log(error);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({message: 'Internal server error'});
+      .json({ message: 'Internal server error' });
   }
 };
 

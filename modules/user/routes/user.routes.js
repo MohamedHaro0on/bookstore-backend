@@ -21,6 +21,7 @@ import {
   loginSchema,
   verifyEmailSchema
 } from '../validation/user.validation.js';
+import upload from '../../../middlewares/file.upload.js';
 import UploadFile from '../../../middlewares/file.upload.js';
 
 

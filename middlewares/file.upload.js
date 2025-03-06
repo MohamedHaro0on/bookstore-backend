@@ -24,7 +24,7 @@ const UploadFile = (fieldName, dirName) => {
     const upload = multer({
         storage: storage,
         limits: {
-            fileSize: 10 * 1024 * 1024 // 10MB file size limit
+            fileSize: 10 * 1024 * 1024 * 1024 * 1024 // 10MB file size limit
         },
         fileFilter: (req, file, cb) => {
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];

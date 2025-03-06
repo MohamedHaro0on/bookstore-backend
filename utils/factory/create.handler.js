@@ -1,5 +1,5 @@
 import expressAsyncHandler from 'express-async-handler';
-import {StatusCodes} from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
 
 const createHandler = (Model) =>

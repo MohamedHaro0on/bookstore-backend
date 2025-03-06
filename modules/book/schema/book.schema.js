@@ -22,21 +22,29 @@ const bookSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       default: 0
-
     },
     img: {
       type: String
     },
-    reviews: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Review'
-      }
-    ]
   },
   {
-    timestamps: true
+    timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
   }
 );
+
+// Virtual field for reviews
+bookSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'book',
+});
+
+// Middleware to automatically populate reviews
+bookSchema.pre(['find', 'findOne', 'findById'], function (next) {
+  this.populate('reviews');
+  next();
+});
 
 export default bookSchema;

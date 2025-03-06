@@ -33,7 +33,8 @@
     "nodemailer": "^6.9.16",
     "s": "^1.0.0",
     "slugify": "^1.6.6",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
     "dotenv": "^16.4.7",

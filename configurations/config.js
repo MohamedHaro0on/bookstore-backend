@@ -1,5 +1,5 @@
-/* eslint-disable node/prefer-global/process */
 import mongoose from 'mongoose';
+import process from 'process';
 
 const DBconnection = () => {
   try {

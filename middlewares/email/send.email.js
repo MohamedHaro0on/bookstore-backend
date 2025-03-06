@@ -1,10 +1,11 @@
+/* eslint-disable style/object-curly-spacing */
 /* eslint-disable node/prefer-global/process */
-import expressAsyncHandler from 'express-async-handler';
+
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import emailTemplate from './email.template.js';
 
-const sendEmail = expressAsyncHandler(async (req, res, next) => {
+const sendEmail = async (email, subject, HTMLFORM) => {
+  console.log("this is the id from the send Email function ", email)
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -12,18 +13,17 @@ const sendEmail = expressAsyncHandler(async (req, res, next) => {
       pass: process.env.email_password
     }
   });
-
-  // send mail with defined transport object
-  const token = jwt.sign(req.body.email, process.env.EMAIL_SECRET_KEY);
-  await transporter.sendMail({
-    from: `"Mohamed Ahmed Ali Haroon"<${process.env.email_user_name}>`, // sender address
-    to: req.body.email, // list of receivers
-    subject: 'Hello ✔', // Subject line
-    html: emailTemplate(token)
-  });
-
-  // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
-  next();
-});
-
+  try {
+    // send mail with defined transport object
+    const emailToken = jwt.sign(email, process.env.EMAIL_SECRET_KEY);
+    await transporter.sendMail({
+      from: `"Mohamed Ahmed Ali Haroon"<${process.env.email_user_name}>`, // sender address
+      to: email, // list of receivers
+      subject, // Subject line
+      html: HTMLFORM(emailToken)
+    });
+  } catch (error) {
+    console.log('this is the error ', error);
+  }
+};
 export default sendEmail;

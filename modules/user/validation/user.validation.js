@@ -24,6 +24,7 @@ export const createUserSchema = {
       'string.empty': 'Password is required',
       'any.required': 'Password is required'
     }),
+    role: Joi.string().valid('user', 'admin'),
     username: Joi.string().trim(),
     phoneNumber: Joi.string().trim(),
     avatar: Joi.string().uri().messages({
@@ -112,6 +113,15 @@ export const changeRoleSchema = {
     role: Joi.string().valid('user', 'admin').required().messages({
       'any.only': 'Role must be either \'user\' or \'admin\'',
       'any.required': 'Role is required'
+    })
+  })
+};
+
+export const verifyEmailSchema = {
+  params: Joi.object({
+    token: Joi.string().required().messages({
+      'string.empty': 'Token is required',
+      'any.required': 'Token is required'
     })
   })
 };

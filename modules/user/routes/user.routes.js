@@ -1,8 +1,6 @@
 import express from 'express';
 import allowedFor from '../../../middlewares/allowed.for.js';
 import authenticateUser from '../../../middlewares/authicate.user.js';
-import sendEmail from '../../../middlewares/email/send.email.js';
-
 import validateRequest from '../../../middlewares/validate.request.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
 import {
@@ -11,7 +9,8 @@ import {
   login,
   logout,
   refreshToken,
-  register
+  register,
+  verifyEmail
 } from '../controller/user.controller.js';
 import UserModel from '../model/user.model.js';
 import {
@@ -19,34 +18,45 @@ import {
   deleteUserSchema,
   getUserByIdSchema,
   getUsersSchema,
-  loginSchema
+  loginSchema,
+  verifyEmailSchema
 } from '../validation/user.validation.js';
+import UploadFile from '../../../middlewares/file.upload.js';
+
+
 
 const UserRoutes = express.Router();
 
-// Public routes
 UserRoutes.post(
   '/auth/register',
+  UploadFile('avatar', 'users'),
   validateRequest(createUserSchema),
-  sendEmail,
+  (req, _, next) => {
+    req.body.avatar = req.file.filename;
+    next();
+  },
   register
-);
-
+)
 UserRoutes.post('/auth/login', validateRequest(loginSchema), login);
 
 UserRoutes.post('/auth/refresh-token', refreshToken);
 UserRoutes.post('/auth/logout', authenticateUser, logout);
-
 // Protected routes
 UserRoutes.get(
-  '/users',
+  '/verify-email/:token',
+  validateRequest(verifyEmailSchema),
+  verifyEmail
+);
+// Protected routes
+UserRoutes.get(
+  '/get',
   authenticateUser,
   validateRequest(getUsersSchema),
   getUsers
 );
 
 UserRoutes.get(
-  '/users/:id',
+  '/:id',
   authenticateUser,
   validateRequest(getUserByIdSchema),
   getUserById
@@ -56,12 +66,13 @@ UserRoutes.get(
 //   '/users/:id',
 //   authenticateUser,
 //   validateRequest(updateProfileSchema),
+//   upload.single('avatar'),
 //   updateProfile
 // );
 
 // // Admin routes
 UserRoutes.delete(
-  '/users/:id',
+  '/:id',
   authenticateUser,
   allowedFor('admin'),
   validateRequest(deleteUserSchema)
@@ -69,13 +80,13 @@ UserRoutes.delete(
 );
 
 UserRoutes.delete(
-  '/users',
-  authenticateUser,
-  allowedFor('admin'),
+  '/delete/all',
+  // authenticateUser,
+  // allowedFor('admin'),
   async (req, res) => {
     await UserModel.deleteMany({});
     await RefreshTokenModel.deleteMany({});
-    res.status(200).json({message: 'All users deleted successfully'});
+    res.status(200).json({ message: 'All users deleted successfully' });
   }
 );
 

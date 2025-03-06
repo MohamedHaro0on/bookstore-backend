@@ -6,6 +6,7 @@ import GetHandler from '../../../utils/factory/get.handler.js';
 import updateHandler from '../../../utils/factory/update.handler.js';
 import BookModel from '../model/book.model.js';
 
+
 export const createBook = createHandler(BookModel);
 
 export const getAllBooks = GetHandler(BookModel);

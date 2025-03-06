@@ -61,17 +61,13 @@ const CartSchema = new mongoose.Schema({
 
 // Calculate item total price
 async function calculateItemPrice(item) {
-  try {
-    const book = await BookModel.findById(item.book);
-    if (!book) {
-      throw new Error('Book not found');
-    }
-    item.price = book.price; // Set the individual item price
-    item.itemTotal = book.price * item.quantity; // Calculate total for this item
-    return item;
-  } catch (error) {
-    throw error;
+  const book = await BookModel.findById(item.book);
+  if (!book) {
+    throw new Error('Book not found');
   }
+  item.price = book.price; // Set the individual item price
+  item.itemTotal = book.price * item.quantity; // Calculate total for this item
+  return item;
 }
 
 // Pre-save middleware for the main cart
@@ -99,35 +95,6 @@ CartSchema.pre('save', async function (next) {
   }
 });
 
-// Add methods to handle cart operations
-CartSchema.methods.addItem = async function (bookId, quantity) {
-  try {
-    const book = await BookModel.findById(bookId);
-    if (!book) {
-      throw new Error('Book not found');
-    }
 
-    const existingItem = this.items.find(
-      (item) => item.book.toString() === bookId.toString()
-    );
-
-    if (existingItem) {
-      existingItem.quantity += quantity;
-      await calculateItemPrice(existingItem);
-    } else {
-      const newItem = {
-        book: bookId,
-        quantity,
-        price: book.price,
-        itemTotal: book.price * quantity
-      };
-      this.items.push(newItem);
-    }
-
-    return this.save();
-  } catch (error) {
-    throw error;
-  }
-};
 
 export default CartSchema;

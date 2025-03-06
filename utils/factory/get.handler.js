@@ -1,5 +1,5 @@
 import expressAsyncHandler from 'express-async-handler';
-import {StatusCodes} from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
 import ApiFeatures from '../api.featuers.js';
 
@@ -14,7 +14,7 @@ const GetHandler = (Model, object) =>
       apiFeatures = apiFeatures.populate(object);
     }
 
-    const {mongooseQuery, paginationResult} = apiFeatures;
+    const { mongooseQuery, paginationResult } = apiFeatures;
     const data = await mongooseQuery;
     if (data) {
       res.status(StatusCodes.OK).json({

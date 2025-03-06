@@ -1,6 +1,6 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import {config} from 'dotenv';
+import { config } from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
 import DBconnection from './configurations/config.js';
@@ -27,6 +27,13 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+// serving static files :
+app.use("/public/users", express.static("public/users"))
+app.use("/public/books", express.static("public/books"))
+
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
@@ -34,10 +41,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Routes :
-app.use('/api/v1/user', UserRoutes);
-app.use('/book/', bookRouter);
-app.use('/cart', cartRouter);
-app.use('/review', ReviewRoutes);
+app.use('/users/', UserRoutes);
+app.use('/books/', bookRouter);
+app.use('/carts/', cartRouter);
+app.use('/reviews/', ReviewRoutes);
 // Not implemented Errors :
 app.all('*', routeNotImplementedHandler);
 // Global error handling middleware for express ;

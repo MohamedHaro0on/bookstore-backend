@@ -13,11 +13,17 @@ import {
   getCartSchema,
   updateCartSchema
 } from '../validation/cart.validation.js';
+import CartModel from '../model/cart.model.js';
 
 const cartRouter = express.Router();
 
 cartRouter.post('/', validateRequest(createCartSchema), createCart);
 cartRouter.get('/', getAllCarts);
+cartRouter.delete("/deleteAll", async (req, res) => {
+  await CartModel.deleteMany({});
+  res.json({ message: "All carts deleted" });
+}
+);
 cartRouter.get('/:id', validateRequest(getCartSchema), getCartById);
 cartRouter.put('/:id', validateRequest(updateCartSchema), updateCart);
 cartRouter.delete('/:id', validateRequest(deleteCartSchema), deleteCart);

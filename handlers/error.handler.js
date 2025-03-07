@@ -3,6 +3,8 @@ import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
 import ApiError from '../utils/api.error.js';
 import process from 'process';
+import { systemLogger } from '../utils/logger.js';
+
 // Handle different types of Mongoose errors
 const handleMongooseError = (err) => {
   // Mongoose Validation Error
@@ -84,6 +86,7 @@ const errorHandler = (err, req, res, next) => {
   } else {
     sendErrForProd(error, res);
   }
+  systemLogger.error(error);
 };
 
 const sendErrForDev = (err, res) => {

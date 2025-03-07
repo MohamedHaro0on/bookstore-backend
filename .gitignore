@@ -1,4 +1,4 @@
 node_modules/
-
+public/
 .env
 .eslintrc.json

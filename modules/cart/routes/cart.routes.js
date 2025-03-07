@@ -5,13 +5,16 @@ import {
   deleteCart,
   getAllCarts,
   getCartById,
-  updateCart
+  updateCart,
+  addItems,
+  removeItems
 } from '../controller/cart.controller.js';
 import {
   createCartSchema,
   deleteCartSchema,
   getCartSchema,
-  updateCartSchema
+  updateCartSchema,
+  addToCartSchema
 } from '../validation/cart.validation.js';
 import CartModel from '../model/cart.model.js';
 import authenticateUser from '../../../middlewares/authicate.user.js';
@@ -24,7 +27,18 @@ cartRouter.post('/',
   createCart
 );
 
-cartRouter.get('/', getAllCarts);
+cartRouter.put("/add-to-cart",
+  validateRequest(addToCartSchema),
+  authenticateUser,
+  addItems,
+)
+
+cartRouter.put("/remove-from-cart",
+  validateRequest(addToCartSchema),
+  authenticateUser,
+  removeItems,
+)
+
 
 cartRouter.delete("/deleteAll", async (req, res) => {
   await CartModel.deleteMany({});
@@ -32,8 +46,19 @@ cartRouter.delete("/deleteAll", async (req, res) => {
 }
 );
 
+// admin Routes :
+
+cartRouter.get('/', getAllCarts);
+
+
 cartRouter.get('/:id', validateRequest(getCartSchema), authenticateUser, getCartById);
+
+
 cartRouter.put('/:id', validateRequest(updateCartSchema), authenticateUser, updateCart);
+
+
+cartRouter.put('/:id', validateRequest(updateCartSchema), authenticateUser, updateCart);
+
 cartRouter.delete('/:id', validateRequest(deleteCartSchema), authenticateUser, deleteCart);
 
 export default cartRouter;

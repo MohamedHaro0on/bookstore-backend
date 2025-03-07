@@ -109,6 +109,7 @@ const authenticateUser = async (req, res, next) => {
         );
         res.setHeader('Authorization', `Bearer ${newAccessToken}`);
         req.user = refreshTokenDecodedUser;
+        console.log("this is the refresh token user : ", refreshTokenDecodedUser.userId)
         req.body.user = refreshTokenDecodedUser.userId
 
         return next();

@@ -5,7 +5,8 @@ const CartItemSchema = new mongoose.Schema({
   book: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Book',
-    required: true
+    required: true,
+    unique: true,
   },
   quantity: {
     type: Number,
@@ -34,7 +35,16 @@ const CartSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  items: [CartItemSchema],
+  items: {
+    type: [CartItemSchema],
+    validate: {
+      validator: function (items) {
+        const bookIds = items.map(item => item.book.toString());
+        return new Set(bookIds).size === bookIds.length;
+      },
+      message: 'Duplicate books are not allowed in the cart'
+    }
+  },
   cartTotalPrice: {
     type: Number,
     required: true,

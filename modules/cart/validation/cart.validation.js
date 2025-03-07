@@ -13,6 +13,11 @@ const cartItemSchema = Joi.object({
   quantity: Joi.number().integer().min(1).required()
 });
 
+export const addToCartSchema = {
+  body: Joi.object({
+    items: Joi.array().items(cartItemSchema).min(1).required(),
+  })
+}
 // Create Cart Validation Schema
 export const createCartSchema = {
   body: Joi.object({

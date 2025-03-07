@@ -13,7 +13,7 @@ import ApiError from '../../../utils/api.error.js';
 
 
 
-const attachAvatar = asyncHandler((req, res, next) => {
+const attachAvatar = asyncHandler((req, _, next) => {
   console.log("this is the middle ware")
   console.log("this is the req.file", req.file)
   if (!req.file) {

@@ -11,6 +11,7 @@ import cartRouter from './modules/cart/routes/cart.routes.js';
 import UserRoutes from './modules/user/routes/user.routes.js';
 import ReviewRoutes from './modules/review/routes/review.routes.js';
 import process from 'process';
+import orderRoutes from './modules/order/routes/order.routes.js';
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use('/users/', UserRoutes);
 app.use('/books/', bookRouter);
 app.use('/carts/', cartRouter);
 app.use('/reviews/', ReviewRoutes);
+app.use("/orders", orderRoutes)
 // Not implemented Errors :
 app.all('*', routeNotImplementedHandler);
 // Global error handling middleware for express ;

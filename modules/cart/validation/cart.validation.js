@@ -16,10 +16,6 @@ const cartItemSchema = Joi.object({
 // Create Cart Validation Schema
 export const createCartSchema = {
   body: Joi.object({
-    user: ObjectId().required().messages({
-      'any.required': 'User ID is required',
-      'string.pattern.name': 'Invalid user ID format'
-    }), // MongoDB ObjectId validation
     items: Joi.array().items(cartItemSchema).min(1).required(),
     // totalAmount: Joi.number().min(0).required(),
     status: Joi.string()

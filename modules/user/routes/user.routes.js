@@ -33,7 +33,6 @@ UserRoutes.post(
   validateRequest(createUserSchema),
   (req, _, next) => {
     req.body.avatar = req.file.filename;
-    console.log("hiiiiii");
     next();
   },
   register

@@ -8,25 +8,22 @@ import generateTokens from '../../../utils/generate.tokens.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
 import UserModel from '../model/user.model.js';
 import process from 'process';
+import ApiError from '../../../utils/api.error.js';
 // Register a new user
 const register = createHandler(UserModel);
 
 // Login user
-const login = asyncHandler(async (req, res) => {
+const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   console.log("this is the request body ", req.body);
   const user = await UserModel.findOne({ email });
   if (!user) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: 'Invalid credentials' });
+    return next(new ApiError("Invalid Credentials", StatusCodes.UNAUTHORIZED));
   }
   const isMatch = await user.verifyPassword(password);
 
   if (!isMatch) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ message: 'Invalid credentials' });
+    return next(new ApiError("Invalid Credentials", StatusCodes.UNAUTHORIZED));
   }
   const tokens = await generateTokens(user._id, user.role);
 
@@ -57,7 +54,7 @@ const refreshToken = asyncHandler(async (req, res) => {
     token: refreshToken
   });
   if (!storedToken) {
-    return res.status(403).json({ message: 'Invalid token' });
+    return next(new ApiError("Token is not found", StatusCodes.UNAUTHORIZED));
   }
 
   const tokens = await generateTokens(decoded.userId);
@@ -99,14 +96,14 @@ const verifyEmail = asyncHandler(async (req, res) => {
   const decodedToken = jwt.verify(token, process.env.EMAIL_SECRET_KEY);
   console.log('this is the decoded token ', decodedToken)
   if (!decodedToken) {
-    return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid token' });
+    return next(new ApiError("Invalid Token", StatusCodes.UNAUTHORIZED));
   }
   console.log('this is the decoded token 11111 ', decodedToken)
 
   const user = await UserModel.findOneAndUpdate({ email: decodedToken, isEmailVerfied: false }, { isEmailVerfied: true }, { new: true });
   console.log("this is the verify email user 2222 ", user);
   if (!user) {
-    return res.status(StatusCodes.NOT_FOUND).json({ message: 'User not found' });
+    return next(new ApiError("user is not found", StatusCodes.NOT_FOUND));
   }
 
   res.status(StatusCodes.ACCEPTED).json({ message: 'Email verified successfully' });

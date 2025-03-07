@@ -3,6 +3,7 @@ import process from 'process';
 
 const DBconnection = () => {
   try {
+
     mongoose
       .connect(process.env.DB_URI)
       .then((con) => {

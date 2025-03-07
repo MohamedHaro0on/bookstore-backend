@@ -14,18 +14,26 @@ import {
   updateCartSchema
 } from '../validation/cart.validation.js';
 import CartModel from '../model/cart.model.js';
+import authenticateUser from '../../../middlewares/authicate.user.js';
 
 const cartRouter = express.Router();
 
-cartRouter.post('/', validateRequest(createCartSchema), createCart);
+cartRouter.post('/',
+  validateRequest(createCartSchema),
+  authenticateUser,
+  createCart
+);
+
 cartRouter.get('/', getAllCarts);
+
 cartRouter.delete("/deleteAll", async (req, res) => {
   await CartModel.deleteMany({});
   res.json({ message: "All carts deleted" });
 }
 );
-cartRouter.get('/:id', validateRequest(getCartSchema), getCartById);
-cartRouter.put('/:id', validateRequest(updateCartSchema), updateCart);
-cartRouter.delete('/:id', validateRequest(deleteCartSchema), deleteCart);
+
+cartRouter.get('/:id', validateRequest(getCartSchema), authenticateUser, getCartById);
+cartRouter.put('/:id', validateRequest(updateCartSchema), authenticateUser, updateCart);
+cartRouter.delete('/:id', validateRequest(deleteCartSchema), authenticateUser, deleteCart);
 
 export default cartRouter;

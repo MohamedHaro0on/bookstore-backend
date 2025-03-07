@@ -95,6 +95,4 @@ CartSchema.pre('save', async function (next) {
   }
 });
 
-
-
 export default CartSchema;

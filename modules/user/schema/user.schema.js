@@ -91,9 +91,19 @@ userSchema.virtual('cart', {
   justOne: true
 });
 
+
 // Middleware to automatically populate cart
 userSchema.pre('findOne', async function (next) {
-  this.populate('cart');
+  this.populate({
+    path: 'cart',
+    populate: {
+      path: 'items',
+      populate: {
+        path: 'book', // Populate the book field within each item
+        model: 'Book'
+      }
+    }
+  });
   next();
 });
 

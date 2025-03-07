@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import RefreshTokenModel from '../modules/refresh_token/model/refresh_token.model.js';
 import process from 'process';
+import ApiError from '../utils/api.error.js';
 
 // Helper function to generate a new access token
 const generateNewAccessToken = (userId) => {
@@ -34,6 +35,7 @@ const validateRefreshToken = async (refreshToken) => {
 // Middleware to authenticate user
 const authenticateUser = async (req, res, next) => {
   try {
+    console.log("this is the check")
     // Extract access token from Authorization header
     const authHeader = req.headers.authorization;
     const accessToken = authHeader?.startsWith('Bearer ')
@@ -53,6 +55,7 @@ const authenticateUser = async (req, res, next) => {
     }
     if (accessToken && refreshToken) {
       // authenticate user with refresh token and generate new access token
+      console.log("this is the  check :")
       try {
         accessTokenDecodedUser = jwt.verify(
           accessToken,
@@ -64,18 +67,15 @@ const authenticateUser = async (req, res, next) => {
         );
         // user is trying to use someone else's token
         if (accessTokenDecodedUser.userId !== refreshTokenDecodedUser.userId) {
-          return res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'Invalid access token'
-          });
+          return next(ApiError('Refresh Token reuse detected . all sessions have been terminated for security .', StatusCodes.UNAUTHORIZED));
         }
         const isRefreshTokenValid = await validateRefreshToken(refreshToken);
         if (!isRefreshTokenValid) {
-          return res.status(StatusCodes.UNAUTHORIZED).json({
-            message:
-              'Refresh token reuse detected. All sessions have been terminated for security.'
-          });
+          return next(ApiError('Refresh Token reuse detected . all sessions have been terminated for security .', StatusCodes.UNAUTHORIZED));
         }
+        console.log("this is the access token decoded user : ", accessTokenDecodedUser)
         req.user = accessTokenDecodedUser;
+        req.body.user = accessTokenDecodedUser.userId
         return next();
       } catch (error) {
         console.log(error);
@@ -84,8 +84,10 @@ const authenticateUser = async (req, res, next) => {
           .json({ message: 'Refresh token has expired' });
       }
     }
+
     // validate the refresh token
     if (refreshToken) {
+      console.log("this is the check")
       try {
         // Verify refresh token
         refreshTokenDecodedUser = jwt.verify(
@@ -107,6 +109,7 @@ const authenticateUser = async (req, res, next) => {
         );
         res.setHeader('Authorization', `Bearer ${newAccessToken}`);
         req.user = refreshTokenDecodedUser;
+        req.body.user = refreshTokenDecodedUser.userId
 
         return next();
       } catch (error) {

@@ -65,6 +65,7 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.post('save', async (doc, _) => {
+  console.log('Email sent');
   sendEmail(
     doc.email,
     'Welcome to our platform',
@@ -72,6 +73,8 @@ userSchema.post('save', async (doc, _) => {
   );
   console.log('Email sent');
 });
+
+
 userSchema.methods.verifyPassword = async function (password) {
   return bcrypt.compareSync(password, this.password);
 };

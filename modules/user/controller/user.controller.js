@@ -9,6 +9,21 @@ import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js'
 import UserModel from '../model/user.model.js';
 import process from 'process';
 import ApiError from '../../../utils/api.error.js';
+
+
+
+
+const attachAvatar = asyncHandler((req, res, next) => {
+  console.log("this is the middle ware")
+  console.log("this is the req.file", req.file)
+  if (!req.file) {
+    next(new ApiError("Please Upload your photo", StatusCodes.BAD_REQUEST))
+  }
+  req.body.avatar = req.file.filename;
+  next()
+})
+
+
 // Register a new user
 const register = createHandler(UserModel);
 
@@ -113,4 +128,4 @@ const getUserById = GetByIdHandler(UserModel);
 
 const getUsers = GetHandler(UserModel);
 
-export { getUserById, getUsers, login, logout, refreshToken, register, verifyEmail };
+export { getUserById, getUsers, login, logout, refreshToken, register, verifyEmail, attachAvatar };

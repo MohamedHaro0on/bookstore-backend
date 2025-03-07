@@ -27,9 +27,7 @@ export const createUserSchema = {
     role: Joi.string().valid('user', 'admin'),
     username: Joi.string().trim(),
     phoneNumber: Joi.string().trim(),
-    avatar: Joi.string().uri().messages({
-      'string.uri': 'Avatar must be a valid URL'
-    })
+    avatar: Joi.string().messages()
   })
 };
 

@@ -10,7 +10,8 @@ import {
   logout,
   refreshToken,
   register,
-  verifyEmail
+  verifyEmail,
+  attachAvatar
 } from '../controller/user.controller.js';
 import UserModel from '../model/user.model.js';
 import {
@@ -30,11 +31,8 @@ const UserRoutes = express.Router();
 UserRoutes.post(
   '/auth/register',
   UploadFile('avatar', 'users'),
+  attachAvatar,
   validateRequest(createUserSchema),
-  (req, _, next) => {
-    req.body.avatar = req.file.filename;
-    next();
-  },
   register
 )
 UserRoutes.post('/auth/login', validateRequest(loginSchema), login);

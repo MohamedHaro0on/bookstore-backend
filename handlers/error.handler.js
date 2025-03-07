@@ -1,5 +1,5 @@
 /* eslint-disable unused-imports/no-unused-vars */
-import {StatusCodes} from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
 import ApiError from '../utils/api.error.js';
 import process from 'process';
@@ -55,7 +55,7 @@ const handleJWTError = (err) => {
 
 const errorHandler = (err, req, res, next) => {
   let error = err;
-
+  console.log("this is the error : ", error);
   // If error is not an instance of ApiError, convert it
   if (!(error instanceof ApiError)) {
     // Handle Mongoose Errors

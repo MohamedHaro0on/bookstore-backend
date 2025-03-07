@@ -14,6 +14,8 @@ const createHandler = (Model) =>
       });
     }
 
+    console.log('Model : ', req.body);
+
     // If no ${Model.modelName} was found to update
     return next(
       new ApiError(

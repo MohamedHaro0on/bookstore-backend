@@ -8,6 +8,17 @@ import { checkStockAvailability, prepareBooksOrdered, updateBookStock, validateU
 import getHandler from "../../../utils/factory/get.handler.js";
 
 
+
+
+
+export const getAll = getHandler(OrderModel);
+
+export const getById = GetByIdHandler(OrderModel);
+
+export const getMyOrders = getHandler(OrderModel, null, true);
+
+
+
 export const create = asyncHandler(async (req, res, next) => {
   const { userId } = req.user;
   const session = await OrderModel.startSession();
@@ -56,36 +67,18 @@ export const create = asyncHandler(async (req, res, next) => {
   }
 });
 
-
-export const getAll = getHandler(OrderModel);
-
-export const getById = GetByIdHandler(OrderModel);
-
-export const getMyOrders = getHandler(OrderModel, null, true);
-
-
-
 export const updateOrderStatus = asyncHandler(async (req, res, next) => {
-  const { id: orderId } = req.params;
+  const { id } = req.params;
   const { status } = req.body;
   const session = await OrderModel.startSession();
   session.startTransaction();
 
   try {
     const order = await OrderModel.findByIdAndUpdate(
-      orderId,
+      id,
       { status },
       { new: true, session }
-    )
-      .populate({
-        path: "items.book",
-        select: "title",
-      })
-      .populate({
-        path: "user",
-        select: "name email",
-      })
-      .exec();
+    ).exec();
     if (!order) next(new ApiError("❌ Order not found", StatusCodes.NOT_FOUND));
 
     if (status === "canceled")

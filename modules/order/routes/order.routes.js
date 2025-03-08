@@ -61,15 +61,8 @@ orderRouter
     });
 
 orderRouter
-    .route('/admin/update-status')
-    .put(authenticateUser, checkRole('admin'), async (req, res) => {
-        await OrderModel.deleteMany({});
-        res.status(200).json({
-            status: 'success',
-            message: 'All orders deleted successfully'
-        });
-    });
-
+    .route('/admin/update-status/:id')
+    .put(authenticateUser, checkRole('admin'), validate.update, updateOrderStatus);
 
 // orderRoutes.get('/', validateRequest(orderValidation.getAllSchema), orderController.get);
 // orderRoutes.get('/:id', validateRequest(orderValidation.getByIdSchema), orderController.getById);

@@ -32,29 +32,29 @@ const validate = {
 };
 
 // Common middleware for all routes
-cartRouter.use(authenticateUser);
+// cartRouter.use(authenticateUser);
 
 // User routes
-cartRouter
-  .route('/')
-  .post(validate.create, createCart);
+// cartRouter
+//   .route('/')
+//   .post(validate.create, createCart);
 
 cartRouter
   .route('/add-to-cart')
-  .put(validate.addToCart, addItems);
+  .put(authenticateUser, validate.addToCart, addItems);
 
 cartRouter
   .route('/remove-from-cart')
-  .put(validate.addToCart, removeItems);
+  .put(authenticateUser, validate.addToCart, removeItems);
 
 // Admin routes (with role check)
 cartRouter
   .route('/admin')
-  .get(checkRole('admin'), getAllCarts);
+  .get(authenticateUser, checkRole('admin'), getAllCarts);
 
 cartRouter
   .route('/admin/deleteAll')
-  .delete(checkRole('admin'), async (req, res) => {
+  .delete(authenticateUser, checkRole('admin'), async (req, res) => {
     await CartModel.deleteMany({});
     res.json({ message: "All carts deleted" });
   });
@@ -62,8 +62,8 @@ cartRouter
 // Individual cart routes
 cartRouter
   .route('/:id')
-  .get(validate.get, getCartById)
-  .put(validate.update, updateCart)
-  .delete(validate.delete, deleteCart);
+  .get(authenticateUser, validate.get, getCartById)
+  .put(authenticateUser, validate.update, updateCart)
+  .delete(authenticateUser, validate.delete, deleteCart);
 
 export default cartRouter;

@@ -21,10 +21,11 @@ export const deleteCart = deleteHandler(CartModel);
 
 
 export const addItems = expressAsyncHandler(async (req, res, next) => {
-
-    const { user, items } = req.body;
-
-    const userCart = await CartModel.findOne({ user, status: "active" })
+    const { user } = req;
+    const { items } = req.body;
+    console.log("this is hte user : ", user);
+    const userCart = await CartModel.findOne({ user: user.userId, status: "active" })
+    console.log("this is the userCart : ", userCart);
     if (!userCart) {
         return next(new ApiError("user's cart is not found ", StatusCodes.BAD_REQUEST))
     }
@@ -43,10 +44,9 @@ export const addItems = expressAsyncHandler(async (req, res, next) => {
 
 
 export const removeItems = expressAsyncHandler(async (req, res, next) => {
-
-    const { user, items } = req.body;
-    console.log("this is the user : ", user)
-    const userCart = await CartModel.findOne({ user, status: "active" })
+    const { user } = req;
+    const { items } = req.body;
+    const userCart = await CartModel.findOne({ user: user.userId, status: "active" })
     if (!userCart) {
         return next(new ApiError("user's cart is not found ", StatusCodes.BAD_REQUEST))
     }

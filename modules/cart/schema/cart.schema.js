@@ -6,7 +6,7 @@ const CartItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Book',
     required: true,
-    // unique: true,
+    unique: true,
   },
   quantity: {
     type: Number,
@@ -18,10 +18,9 @@ const CartItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0,
-    default: 0 // Add default value to prevent validation error
+    default: 0
   },
   itemTotal: {
-    // Added to store total price for this item
     type: Number,
     required: true,
     default: 0
@@ -54,7 +53,7 @@ const CartSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'abandoned', 'completed'],
+    enum: ['active', 'completed'],
     default: 'active'
   },
   createdAt: {
@@ -73,9 +72,7 @@ const CartSchema = new mongoose.Schema({
 
 // Calculate item total price
 async function calculateItemPrice(item) {
-  console.log("ITTTTTTTTTEM : ", item.book);
   const book = await BookModel.findById(item.book);
-  console.log("booooooooook ", book);
   if (!book) {
     throw new Error('Book not found');
   }

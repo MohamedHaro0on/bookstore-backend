@@ -5,6 +5,7 @@ import orderValidation from '../validation/order.validation.js';
 import CheckPreviousOrders from '../../../middlewares/check.previous.orders.js';
 import OrderModel from '../model/order.model.js';
 import authenticateUser from '../../../middlewares/authenticate.user.js';
+import checkRole from '../../../middlewares/check.role.js';
 
 const orderRouter = express.Router();
 
@@ -18,26 +19,26 @@ const validate = {
 };
 
 // Common middleware
-orderRouter.use(authenticateUser);
+// orderRouter.use(authenticateUser);
 
 // Order routes
 orderRouter
     .route('/')
-    .post(validate.create, CheckPreviousOrders, create)
-    .get(validate.getAll, getAll);
+    .post(authenticateUser, validate.create, CheckPreviousOrders, create)
+    .get(authenticateUser, checkRole('admin'), validate.getAll, getAll);
 
 
 orderRouter
     .route('/:id')
-    .get(validate.getById, getById)
-    .patch(validate.update, updateOrderStatus)
-// .delete(validate.delete, remove);
+    .get(authenticateUser, validate.getById, getById)
+    .patch(authenticateUser, checkRole('admin'), validate.update, updateOrderStatus)
+    .delete(authenticateUser, checkRole('admin'), validate.delete, remove);
 
 
 // Admin routes
 orderRouter
     .route('/admin')
-    .get(async (req, res) => {
+    .get(authenticateUser, checkRole('admin'), async (req, res) => {
         const orders = await OrderModel.find({});
         res.json({
             status: 'success',
@@ -47,7 +48,7 @@ orderRouter
 
 orderRouter
     .route('/admin/deleteAll')
-    .delete(async (req, res) => {
+    .delete(authenticateUser, checkRole('admin'), async (req, res) => {
         await OrderModel.deleteMany({});
         res.status(200).json({
             status: 'success',

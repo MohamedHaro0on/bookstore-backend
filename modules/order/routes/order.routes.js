@@ -32,7 +32,7 @@ orderRouter
     .route('/:id')
     .get(authenticateUser, validate.getById, getById)
     .patch(authenticateUser, checkRole('admin'), validate.update, updateOrderStatus)
-    .delete(authenticateUser, checkRole('admin'), validate.delete, remove);
+// .delete(authenticateUser, checkRole('admin'), validate.delete);
 
 
 // Admin routes

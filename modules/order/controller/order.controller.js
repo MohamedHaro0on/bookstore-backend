@@ -1,170 +1,209 @@
-// core modules + 3d party modules :
-import mongoose from 'mongoose';
-import ApiError from '../../../utils/api.error.js';
-import { StatusCodes } from 'http-status-codes';
-import expressAsyncHandler from 'express-async-handler';
-// user modules :
-import BookModel from '../../book/model/book.model.js';
-import GetByIdHandler from '../../../utils/factory/get.by.id.handler.js';
-import GetHandler from '../../../utils/factory/get.handler.js';
-import OrderModel from '../model/order.model.js';
-import UserModel from '../../user/model/user.model.js';
-import CartModel from '../../cart/model/cart.model.js';
+import asyncHandler from "express-async-handler";
+import User from "../../user/model/user.model.js";
+import Book from "../../book/model/book.model.js";
+import Order from "../model/order.model.js";
+import ApiError from "../../../utils/api.error.js";
 
-
-const create = expressAsyncHandler(async (req, res, next) => {
-  console.log("we are here : ", req.body)
-  const { user } = req.body;
-
-  let detailedUser = await UserModel.findById(user);
+const validateUserAndCart = async (userId, session) => {
+  const user = await User.findById(userId).session(session);
+  if (!user) throw new ApiError("❌ User not found", 404);
   console.log("this is the user : ", user);
+  if (user.cart && user.cart.items.length === 0) throw new ApiError("❌ User cart is empty", 400);
+  return user;
+};
 
-  let orderItems = detailedUser.cart.items;
-  console.log("order Items : ", orderItems);
-  const session = await mongoose.startSession();
+// Update prepareBooksOrdered to fix the author field
+const prepareBooksOrdered = (userCart) =>
+  userCart.items.map((item) => ({
+    title: item.book.title,
+    price: item.book.price,
+    author: item.book.author, // Changed from item.book.price
+    quantity: item.quantity,
+  }));
+
+// Update checkStockAvailability to handle async properly
+const checkStockAvailability = async (userCart) => {
+  const errors = [];
+
+  for (const item of userCart.items) {
+    if (!item.book) {
+      errors.push(`❌ Book with ID ${item._id} not found`);
+      continue;
+    }
+
+    if (item.book.stock < item.quantity) {
+      errors.push(
+        `❌ Not enough stock for "${item.book.title}" (Requested: ${item.quantity}, Available: ${item.book.stock})`
+      );
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new ApiError(errors.join("\n"), 400);
+  }
+};
+
+// Update updateBookStock to handle async properly
+const updateBookStock = async (userCart, session) => {
+  const updates = userCart.items.map(({ book, quantity }) =>
+    Book.updateOne(
+      { _id: book._id },
+      { $inc: { stock: -quantity } },
+      { session }
+    )
+  );
+
+  await Promise.all(updates);
+}
+
+const getOrders = async (userId) => {
+  const userExists = await User.exists({ _id: userId }).exec();
+  if (!userExists) throw new ApiError("❌ User does not exist", 404);
+
+  const orders = await Order.find({ user: userId })
+    .sort({ orderDate: -1 })
+    .populate("user", "name email")
+    .populate("books.book", "title description author averageRating")
+    .exec();
+
+  if (orders.length === 0)
+    throw new ApiError("ℹ️ No orders found for this user", 404);
+
+  return orders;
+};
+
+export const create = asyncHandler(async (req, res, next) => {
+  const userId = req.body.user;
+  const session = await Order.startSession();
+  session.startTransaction();
+
   try {
-    session.startTransaction();
-    // Step 1: Create the order
+    // Validate user and cart
+    const user = await validateUserAndCart(userId, session);
 
-    orderItems.forEach(({ book, quantity }) => {
-      if (book.stock < quantity) {
-        return next(new ApiError(`book ${book.name} stock is less than ${quantity}`));
-      }
-    })
+    // Check stock availability
+    await checkStockAvailability(user.cart);
 
-    let totalPrice = 0;
-    const books = orderItems.map(({ book }, index) => {
-      totalPrice += (orderItems[index].quantity * book.price)
-      return ({
-        title: book.title,
-        author: book.author,
-        quantity: orderItems[index].quantity,
-        price: book.price,
-      })
+    // Prepare books for order
+    const booksOrdered = prepareBooksOrdered(user.cart);
+
+    // Calculate total price
+    const totalPrice = booksOrdered.reduce((total, item) =>
+      total + (item.price * item.quantity), 0
+    );
+
+    // Create order - only save once
+    const newOrder = await new Order({
+      user: user._id,
+      books: booksOrdered,
+      totalPrice,
+      status: 'pending'
+    }).save({ session });
+
+    // Update book stock
+    await updateBookStock(user.cart, session);
+
+    // Clear user's cart
+    user.cart.items = [];
+    await user.save({ session });
+
+    await session.commitTransaction();
+    res.status(201).json({
+      status: 'success',
+      data: newOrder
     });
 
-    let newOrder = await OrderModel.create({
-      user, books, totalPrice
-    })
-    // Step 3: Update book stock
-    for (const { book, quantity } of orderItems) {
-      let updatedBooks = await BookModel.updateOne(
-        { _id: book._id },
-        { $inc: { stock: -quantity } },
-        { session }
-      );
-      console.log("this is the updated books : ", updatedBooks);
-    }
-    // delete the user's cart .
-    const deletedCart = await CartModel.findOneAndDelete({ user })
-    console.log("i am here ")
-    // Commit the transaction
-    await session.commitTransaction();
-    res.status(StatusCodes.CREATED).json({ success: true, data: newOrder });
   } catch (error) {
-    // Abort the transaction on error
-    console.log("this is the error : ", error)
     await session.abortTransaction();
-
-    return next(new ApiError(`${error}`, StatusCodes.CONFLICT));
-
+    next(new ApiError(error.message, 400));
   } finally {
-    // End the session
     session.endSession();
   }
 });
+export const getAllOrders = asyncHandler(async (req, res, next) => {
+  const orders = await Order.find()
+    .populate("books.book", "title description author averageRating")
+    .exec();
+  if (!orders.length) next(new ApiError("❌ Orders not found", 404));
+  res.status(200).json({ result: orders.length, data: orders });
+});
 
-const update = async (req, res, next) => {
-  const session = await mongoose.startSession();
+export const getOrderById = asyncHandler(async (req, res, next) => {
+  const { id: orderId } = req.params;
+  const order = await Order.findById(orderId)
+    .populate("books.book", "title description author averageRating")
+    .exec();
+  if (!order) next(new ApiError("❌ Order not found", 404));
+  res.status(200).json(order);
+});
+
+export const getOrdersByUserId = asyncHandler(async (req, res, next) => {
+  const orders = await getOrders(req.params.id);
+  if (!orders) next(new ApiError("Order not found", 404));
+  res.status(200).json({
+    result: orders.length,
+    message: "📦 Orders retrieved successfully!",
+    data: orders,
+  });
+});
+
+export const getMyOrders = asyncHandler(async (req, res, next) => {
+  const orders = await getOrders(req.user._id);
+  if (!orders) next(new ApiError("Order not found", 404));
+  res.status(200).json({
+    result: orders.length,
+    message: "📦 Orders retrieved successfully!",
+    data: orders,
+  });
+});
+
+export const updateOrderStatus = asyncHandler(async (req, res, next) => {
+  const { id: orderId } = req.params;
+  const { status } = req.body;
+
+  const session = await Order.startSession();
   session.startTransaction();
 
   try {
-    const { id } = req.params;
-    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true, session }
+    )
+      .populate({
+        path: "books.book",
+        select: "title",
+      })
+      .populate({
+        path: "user",
+        select: "name email",
+      })
+      .exec();
+    if (!order) next(new ApiError("❌ Order not found", 404));
 
-    const order = await OrderModel.findById(id).session(session);
-    if (!order) {
-      throw new Error('Order not found');
-    }
-
-    // Update the order status
-    order.status = status;
-    await order.save({ session });
-
-    // Restore inventory if the order is cancelled
-    if (status === 'cancelled') {
-      for (const bookItem of order.books) {
-        const book = await BookModel.findById(bookItem.bookId).session(session);
-        if (!book) {
-          throw new Error(`Book with ID ${bookItem.bookId} not found`);
-        }
-
-        // Restore the book's quantity
-        book.quantity += bookItem.quantity;
-        await book.save({ session });
-      }
-    }
+    if (status === "canceled")
+      await updateBookStock(order.books, session, "canceled");
 
     await session.commitTransaction();
-    session.endSession();
 
-    res.status(200).json({ success: true, data: order });
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
+    res.status(200).json(order);
 
-    // Pass the error to the error handler
-    next(error);
-  }
-};
-
-const remove = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const { id } = req.params;
-
-    const order = await OrderModel.findById(id).session(session);
-    if (!order) {
-      throw new Error('Order not found');
-    }
-
-    // Restore inventory
-    for (const bookItem of order.books) {
-      const book = await BookModel.findById(bookItem.bookId).session(session);
-      if (!book) {
-        throw new Error(`Book with ID ${bookItem.bookId} not found`);
+    setImmediate(async () => {
+      try {
+        const statusUpdateHtml = getStatusUpdateEmail(order.user.name, order);
+        // await sendEmail({
+        //   email: order.user.email,
+        //   subject: `Order #${order._id} Status Update`,
+        //   message: statusUpdateHtml,
+        // });
+      } catch (err) {
+        console.error("Email sending failed:", err);
       }
-
-      // Restore the book's quantity
-      book.quantity += bookItem.quantity;
-      await book.save({ session });
-    }
-
-    // Delete the order
-    await OrderModel.deleteOne({ _id: id }).session(session);
-
-    await session.commitTransaction();
-    session.endSession();
-
-    res.status(200).json({ success: true, data: null });
+    });
   } catch (error) {
     await session.abortTransaction();
+    next(new ApiError(error.message, 404));
+  } finally {
     session.endSession();
-
-    // Pass the error to the error handler
-    next(error);
   }
-};
-
-const get = GetHandler(OrderModel);
-const getById = GetByIdHandler(OrderModel);
-
-export default {
-  create,
-  get,
-  getById,
-  update,
-  remove
-};
+});

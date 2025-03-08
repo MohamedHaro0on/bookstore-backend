@@ -55,7 +55,7 @@ const orderSchema = new mongoose.Schema(
 );
 
 // Add indexes for frequently queried fields
-orderSchema.index({ user: 1 });
+orderSchema.index({ user: 1, createdAt: -1 });
 orderSchema.index({ status: 1 });
 
 export default orderSchema;

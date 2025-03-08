@@ -6,7 +6,7 @@ const CartItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Book',
     required: true,
-    unique: true,
+    // unique: true,
   },
   quantity: {
     type: Number,
@@ -33,14 +33,16 @@ const CartSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    unique: true
+    // unique: true
   },
   items: {
     type: [CartItemSchema],
     validate: {
       validator: function (items) {
-        const bookIds = items.map(item => item.book.toString());
-        return new Set(bookIds).size === bookIds.length;
+        if (items.length > 0) {
+          const bookIds = items.map(item => item.book.toString());
+          return new Set(bookIds).size === bookIds.length;
+        }
       },
       message: 'Duplicate books are not allowed in the cart'
     }
@@ -71,7 +73,9 @@ const CartSchema = new mongoose.Schema({
 
 // Calculate item total price
 async function calculateItemPrice(item) {
+  console.log("ITTTTTTTTTEM : ", item.book);
   const book = await BookModel.findById(item.book);
+  console.log("booooooooook ", book);
   if (!book) {
     throw new Error('Book not found');
   }

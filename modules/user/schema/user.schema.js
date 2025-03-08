@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.index({ email: 1 });
+// userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
 
 userSchema.pre('save', async function (next) {
@@ -65,13 +65,11 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.post('save', async (doc, _) => {
-  console.log('Email sent');
   sendEmail(
     doc.email,
     'Welcome to our platform',
     emailTemplate
   );
-  console.log('Email sent');
 });
 
 
@@ -94,6 +92,9 @@ userSchema.virtual('cart', {
   justOne: true
 });
 
+userSchema.post("save", (doc) => {
+  console.log("this is the document : ", doc);
+})
 
 // Middleware to automatically populate cart
 userSchema.pre('findOne', async function (next) {

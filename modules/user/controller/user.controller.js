@@ -9,6 +9,7 @@ import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js'
 import UserModel from '../model/user.model.js';
 import process from 'process';
 import ApiError from '../../../utils/api.error.js';
+import CartModel from '../../cart/model/cart.model.js';
 
 
 
@@ -41,7 +42,7 @@ const login = asyncHandler(async (req, res, next) => {
     return next(new ApiError("Invalid Credentials", StatusCodes.UNAUTHORIZED));
   }
   const tokens = await generateTokens(user._id, user.role);
-
+  console.log("this is the register")
   // Set refresh token as HTTP-only cookie
   res.cookie('refreshToken', tokens.refreshToken, {
     httpOnly: true,

@@ -1,11 +1,11 @@
 import express from 'express';
 import validateRequest from '../../../middlewares/validate.request.js';
 import {
-  createBook,
-  deleteBook,
-  getAllBooks,
-  getBookById,
-  updateBook
+  create,
+  getAll,
+  getById,
+  remove,
+  update
 } from '../controller/book.controller.js';
 import {
   createBookSchema,
@@ -31,13 +31,32 @@ const validate = {
 // Chain routes with middleware object
 bookRouter
   .route('/')
-  .post(authenticateUser, checkRole('admin'), validate.create, createBook)
-  .get(getAllBooks);
+  .post(
+    authenticateUser,
+    UploadFile("img", "books"),
+    attachImage('img'),
+    checkRole('admin'),
+    validate.create,
+    create
+  )
+  .get(getAll);
 
 bookRouter
   .route('/:id')
-  .get(validate.get, getBookById)
-  .put(authenticateUser, checkRole('admin'), UploadFile("img", "books"), attachImage('img'), validate.update, updateBook)
-  .delete(authenticateUser, checkRole('admin'), validate.delete, deleteBook);
+  .get(validate.get, getById)
+  .put(
+    authenticateUser,
+    UploadFile("img", "books"),
+    attachImage('img'),
+    checkRole('admin'),
+    validate.update,
+    update
+  )
+  .delete(
+    authenticateUser,        // First authenticate
+    checkRole('admin'),      // Then check role
+    validate.delete,
+    remove
+  );
 
 export default bookRouter;

@@ -7,10 +7,9 @@ export const createBookSchema = Joi.object({
   title: Joi.string().required(),
   author: Joi.string().required(),
   price: Joi.number().min(0).required(),
-  description: Joi.string().optional().allow(''),
+  description: Joi.string().required(),
   stock: Joi.number().min(0).default(0),
-  img: Joi.string().optional().allow(''),
-  reviews: Joi.array().items(Joi.string().length(24)).optional()
+  img: Joi.string().required(),
 });
 
 export const updateBookSchema = {
@@ -20,9 +19,9 @@ export const updateBookSchema = {
     price: Joi.number().min(0),
     description: Joi.string().optional().allow(''),
     stock: Joi.number().min(0).default(0),
-    img: Joi.string().optional().allow(''),
-    reviews: Joi.array().items(Joi.string().length(24)).optional()
-  }), params: Joi.object({
+    img: Joi.string().optional(),
+  }),
+  params: Joi.object({
     id: ObjectId().required().messages({
       'any.required': 'book ID is required',
       'string.pattern.name': 'Invalid book ID format'

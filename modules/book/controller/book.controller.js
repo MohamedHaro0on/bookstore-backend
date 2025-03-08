@@ -7,12 +7,12 @@ import updateHandler from '../../../utils/factory/update.handler.js';
 import BookModel from '../model/book.model.js';
 
 
-export const createBook = createHandler(BookModel);
+export const create = createHandler(BookModel);
 
-export const getAllBooks = GetHandler(BookModel);
+export const getAll = GetHandler(BookModel);
 
-export const getBookById = GetByIdHandler(BookModel);
+export const getById = GetByIdHandler(BookModel);
 
-export const updateBook = updateHandler(BookModel);
+export const update = updateHandler(BookModel);
 
-export const deleteBook = deleteHandler(BookModel);
+export const remove = deleteHandler(BookModel);

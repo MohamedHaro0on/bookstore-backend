@@ -10,6 +10,7 @@ import UserModel from '../model/user.model.js';
 import process from 'process';
 import ApiError from '../../../utils/api.error.js';
 import updateHandler from '../../../utils/factory/update.handler.js';
+import { userLogger } from '../../../utils/logger.js';
 
 
 // Register a new user
@@ -33,6 +34,7 @@ const login = asyncHandler(async (req, res, next) => {
   if (!isMatch) {
     return next(new ApiError("Invalid Credentials", StatusCodes.UNAUTHORIZED));
   }
+  userLogger.info(`user with email : ${email}  logged in at : ${Date.now()} \n`)
   const tokens = await generateTokens(user._id, user.role);
   // Set refresh token as HTTP-only cookie
   res.cookie('refreshToken', tokens.refreshToken, {

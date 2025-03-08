@@ -29,17 +29,17 @@ const createLogger = (endpoint) => {
   return winston.createLogger({
     level: process.env.NODE_ENV === 'development' ? 'debug' : 'info', // The least level of logs to start logging from
     levels,
-    
+
     // Define log format
     format: winston.format.combine(
-      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), 
+      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
       winston.format.printf(
         (info) => `${info.timestamp} ${info.level}: [${endpoint}] ${info.message}`
       )
     ),
     defaultMeta: { endpoint }, // Add custom key-value pair for the endpoint
     // Define transports (where to output logs)
-    transports: [ 
+    transports: [
       new winston.transports.Console(), // Log to console with colorized output
       new winston.transports.File({
         filename: `logs/${endpoint}.log`, // Log to a file named after the endpoint

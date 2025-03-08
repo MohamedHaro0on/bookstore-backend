@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
 import ApiFeatures from '../api.featuers.js';
 
-const GetHandler = (Model, object) =>
+const getHandler = (Model, object) =>
   expressAsyncHandler(async (req, res) => {
     let apiFeatures = new ApiFeatures(Model.find(), req.query)
       .filter()
@@ -30,4 +30,4 @@ const GetHandler = (Model, object) =>
     }
   });
 
-export default GetHandler;
+export default getHandler;

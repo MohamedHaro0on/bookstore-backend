@@ -13,6 +13,10 @@ import {
   getBookSchema,
   updateBookSchema
 } from '../validation/book.validation.js';
+import UploadFile from '../../../middlewares/file.upload.js';
+import attachImage from '../../../middlewares/attach.image.js';
+import authenticateUser from '../../../middlewares/authenticate.user.js';
+import checkRole from '../../../middlewares/check.role.js';
 
 const bookRouter = express.Router();
 
@@ -27,13 +31,13 @@ const validate = {
 // Chain routes with middleware object
 bookRouter
   .route('/')
-  .post(validate.create, createBook)
+  .post(authenticateUser, checkRole('admin'), validate.create, createBook)
   .get(getAllBooks);
 
 bookRouter
   .route('/:id')
   .get(validate.get, getBookById)
-  .put(validate.update, updateBook)
-  .delete(validate.delete, deleteBook);
+  .put(authenticateUser, checkRole('admin'), UploadFile("img", "books"), attachImage('img'), validate.update, updateBook)
+  .delete(authenticateUser, checkRole('admin'), validate.delete, deleteBook);
 
 export default bookRouter;

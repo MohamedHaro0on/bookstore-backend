@@ -1,17 +1,15 @@
 import express from 'express';
-import allowedFor from '../../../middlewares/check.role.js';
-import authenticateUser from '../../../middlewares/authicate.user.js';
+import authenticateUser from '../../../middlewares/authenticate.user.js';
 import validateRequest from '../../../middlewares/validate.request.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
 import {
-  getUserById,
-  getUsers,
+  getById,
+  getAll,
   login,
   logout,
   refreshToken,
   register,
   verifyEmail,
-  attachAvatar
 } from '../controller/user.controller.js';
 import UserModel from '../model/user.model.js';
 import {
@@ -24,6 +22,7 @@ import {
 } from '../validation/user.validation.js';
 import UploadFile from '../../../middlewares/file.upload.js';
 import checkRole from '../../../middlewares/check.role.js';
+import attachImage from '../../../middlewares/attach.image.js';
 
 const userRouter = express.Router();
 
@@ -37,15 +36,11 @@ const validate = {
   delete: validateRequest(deleteUserSchema)
 };
 
-// File upload middleware
-const upload = {
-  avatar: UploadFile('avatar', 'users')
-};
 
 // Auth routes
 userRouter
   .route('/auth/register')
-  .post(upload.avatar, attachAvatar, validate.create, register);
+  .post(UploadFile('avatar', 'users'), attachImage('avatar'), validate.create, register);
 
 userRouter
   .route('/auth/login')
@@ -64,21 +59,24 @@ userRouter
   .route('/verify-email/:token')
   .get(validate.verifyEmail, verifyEmail);
 
-// Protected user routes
-userRouter
-  .route('/get')
-  .get(authenticateUser, validate.getUsers, getUsers);
 
 userRouter
   .route('/:id')
-  .get(authenticateUser, validate.getById, getUserById)
-  .delete(authenticateUser, allowedFor('admin'), validate.delete);
+  .get(authenticateUser, validate.getById, getById)
+  .delete(authenticateUser, checkRole('admin'), validate.delete);
+
+
 
 // Admin routes
 const adminRouter = express.Router();
 
+// Protected user routes
 adminRouter
-  .route('/delete/all')
+  .route('/get-all-users')
+  .get(authenticateUser, checkRole('admin'), validate.getUsers, getAll);
+
+adminRouter
+  .route('/delete-all-users')
   .delete(
     authenticateUser,
     checkRole('admin'),

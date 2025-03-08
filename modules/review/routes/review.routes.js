@@ -7,7 +7,7 @@ import {
     getReviewByIdSchema,
     updateReviewSchema
 } from '../validation/review.validation.js';
-import authenticateUser from '../../../middlewares/authicate.user.js';
+import authenticateUser from '../../../middlewares/authenticate.user.js';
 
 const reviewRouter = express.Router();
 

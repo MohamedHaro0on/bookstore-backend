@@ -17,7 +17,7 @@ import {
   addToCartSchema
 } from '../validation/cart.validation.js';
 import CartModel from '../model/cart.model.js';
-import authenticateUser from '../../../middlewares/authicate.user.js';
+import authenticateUser from '../../../middlewares/authenticate.user.js';
 import checkRole from '../../../middlewares/check.role.js';
 
 const cartRouter = express.Router();

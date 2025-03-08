@@ -30,6 +30,15 @@ const updateSchema = {
   })
 }
 
+const updateOrderStatusSchema = {
+  params: joi.object({
+    id: ObjectId().required()
+  }),
+  body: joi.object({
+    status: joi.string().valid('pending', 'shipped', 'delivered', 'cancelled')
+  })
+}
+
 const deleteSchema = {
   params: joi.object({
     id: ObjectId().required()
@@ -52,5 +61,6 @@ export default {
   getAllSchema,
   getByIdSchema,
   deleteSchema,
-  updateSchema
+  updateSchema,
+  updateOrderStatusSchema
 };

@@ -126,7 +126,7 @@ const authenticateUser = async (req, res, next) => {
 
         // Set user info in request
         req.user = accessTokenDecoded;
-        req.body.user = accessTokenDecoded.userId;
+        // req.body.user = accessTokenDecoded.userId;
 
         // If refresh token is near expiry, generate a new one (optional)
         if (isNearExpiry) {
@@ -146,7 +146,7 @@ const authenticateUser = async (req, res, next) => {
         res.setHeader('Authorization', `Bearer ${newAccessToken}`);
 
         req.user = refreshTokenDecoded;
-        req.body.user = refreshTokenDecoded.userId;
+        // req.body.user = refreshTokenDecoded.userId;
         return next();
       }
     } else {
@@ -155,7 +155,7 @@ const authenticateUser = async (req, res, next) => {
       res.setHeader('Authorization', `Bearer ${newAccessToken}`);
 
       req.user = refreshTokenDecoded;
-      req.body.user = refreshTokenDecoded.userId;
+      // req.body.user = refreshTokenDecoded.userId;
 
       // If refresh token is near expiry, generate a new one (optional)
       if (isNearExpiry) {

@@ -1,31 +1,40 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import expressAsyncHandler from 'express-async-handler';
-import {StatusCodes} from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
 
 const updateHandler = (Model) =>
-  expressAsyncHandler(async (req, res, next, error) => {
-    const {id} = req.query;
-    const updatedDocument = await Model.findByIdAndUpdate(
-      {_id: id},
+  expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+
+    // Build query based on user role [Ownership]
+    const query = { _id: id };
+    if (req.user.role !== 'admin') {
+      query.user = req.user.userId;
+    }
+    console.log("this is the query object : ", query);
+    const updatedDocument = await Model.findOneAndUpdate(
+      query,
       req.body,
-      {new: true} // Return the updated document
+      {
+        new: true,      // Return the updated document
+        runValidators: true // Run schema validators
+      }
     );
 
-    if (updatedDocument) {
-      return res.status(StatusCodes.OK).json({
-        message: `${Model.modelName} updated successfully`,
-        data: updatedDocument
-      });
-    } else {
-      // If no ${Model.modelName} was found to update
-      return next(
-        new ApiError(
-          `${Model.modelName} not found or could not be updated.`,
-          StatusCodes.NOT_FOUND
-        )
+    if (!updatedDocument) {
+      throw new ApiError(
+        req.user.role === 'admin'
+          ? `${Model.modelName} not found`
+          : `${Model.modelName} not found or you're not authorized`,
+        StatusCodes.NOT_FOUND
       );
     }
+
+    res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: `${Model.modelName} updated successfully`,
+      data: updatedDocument
+    });
   });
 
 export default updateHandler;

@@ -1,19 +1,35 @@
 import express from 'express';
 import validateRequest from '../../../middlewares/validate.request.js';
 import reviewController from '../controller/review.controller.js';
-import { createReviewSchema, deleteReviewSchema, getReviewByIdSchema, updateReviewSchema } from '../validation/review.validation.js';
+import {
+    createReviewSchema,
+    deleteReviewSchema,
+    getReviewByIdSchema,
+    updateReviewSchema
+} from '../validation/review.validation.js';
 import authenticateUser from '../../../middlewares/authicate.user.js';
 
-const router = express.Router();
+const reviewRouter = express.Router();
 
-router.get('/', reviewController.get);
+// Middleware object for cleaner code
+const validate = {
+    create: validateRequest(createReviewSchema),
+    get: validateRequest(getReviewByIdSchema),
+    update: validateRequest(updateReviewSchema),
+    delete: validateRequest(deleteReviewSchema)
+};
 
-router.get('/:id', validateRequest(getReviewByIdSchema), reviewController.get);
+// Public routes
+reviewRouter
+    .route('/')
+    .get(reviewController.get)
+    .post(authenticateUser, validate.create, reviewController.create);
 
-router.post('/', authenticateUser, validateRequest(createReviewSchema), reviewController.create);
+// Protected routes with ID
+reviewRouter
+    .route('/:id')
+    .get(validate.get, reviewController.get)
+    .patch(authenticateUser, validate.update, reviewController.update)
+    .delete(authenticateUser, validate.delete, reviewController.remove);
 
-router.patch('/:id', authenticateUser, validateRequest(updateReviewSchema), reviewController.update);
-
-router.delete('/:id', authenticateUser, validateRequest(deleteReviewSchema), reviewController.remove);
-
-export default router;
+export default reviewRouter;

@@ -18,47 +18,52 @@ import {
 } from '../validation/cart.validation.js';
 import CartModel from '../model/cart.model.js';
 import authenticateUser from '../../../middlewares/authicate.user.js';
+import checkRole from '../../../middlewares/check.role.js';
 
 const cartRouter = express.Router();
 
-cartRouter.post('/',
-  validateRequest(createCartSchema),
-  authenticateUser,
-  createCart
-);
+// Middleware object
+const validate = {
+  create: validateRequest(createCartSchema),
+  get: validateRequest(getCartSchema),
+  update: validateRequest(updateCartSchema),
+  delete: validateRequest(deleteCartSchema),
+  addToCart: validateRequest(addToCartSchema)
+};
 
-cartRouter.put("/add-to-cart",
-  validateRequest(addToCartSchema),
-  authenticateUser,
-  addItems,
-)
+// Common middleware for all routes
+cartRouter.use(authenticateUser);
 
-cartRouter.put("/remove-from-cart",
-  validateRequest(addToCartSchema),
-  authenticateUser,
-  removeItems,
-)
+// User routes
+cartRouter
+  .route('/')
+  .post(validate.create, createCart);
 
+cartRouter
+  .route('/add-to-cart')
+  .put(validate.addToCart, addItems);
 
-cartRouter.delete("/deleteAll", async (req, res) => {
-  await CartModel.deleteMany({});
-  res.json({ message: "All carts deleted" });
-}
-);
+cartRouter
+  .route('/remove-from-cart')
+  .put(validate.addToCart, removeItems);
 
-// admin Routes :
+// Admin routes (with role check)
+cartRouter
+  .route('/admin')
+  .get(checkRole('admin'), getAllCarts);
 
-cartRouter.get('/', getAllCarts);
+cartRouter
+  .route('/admin/deleteAll')
+  .delete(checkRole('admin'), async (req, res) => {
+    await CartModel.deleteMany({});
+    res.json({ message: "All carts deleted" });
+  });
 
-
-cartRouter.get('/:id', validateRequest(getCartSchema), authenticateUser, getCartById);
-
-
-cartRouter.put('/:id', validateRequest(updateCartSchema), authenticateUser, updateCart);
-
-
-cartRouter.put('/:id', validateRequest(updateCartSchema), authenticateUser, updateCart);
-
-cartRouter.delete('/:id', validateRequest(deleteCartSchema), authenticateUser, deleteCart);
+// Individual cart routes
+cartRouter
+  .route('/:id')
+  .get(validate.get, getCartById)
+  .put(validate.update, updateCart)
+  .delete(validate.delete, deleteCart);
 
 export default cartRouter;

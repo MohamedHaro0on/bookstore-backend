@@ -2,7 +2,7 @@ import expressAsyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../utils/api.error.js';
 
-const allowedFor = (...roles) => {
+const checkRole = (...roles) => {
   return expressAsyncHandler(async (req, res, next) => {
     if (!req.user || !roles.includes(req.user)) {
       return next(
@@ -13,4 +13,4 @@ const allowedFor = (...roles) => {
   });
 };
 
-export default allowedFor;
+export default checkRole;

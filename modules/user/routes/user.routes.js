@@ -1,5 +1,5 @@
 import express from 'express';
-import allowedFor from '../../../middlewares/allowed.for.js';
+import allowedFor from '../../../middlewares/check.role.js';
 import authenticateUser from '../../../middlewares/authicate.user.js';
 import validateRequest from '../../../middlewares/validate.request.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
@@ -23,69 +23,73 @@ import {
   verifyEmailSchema
 } from '../validation/user.validation.js';
 import UploadFile from '../../../middlewares/file.upload.js';
+import checkRole from '../../../middlewares/check.role.js';
 
+const userRouter = express.Router();
 
+// Middleware object
+const validate = {
+  create: validateRequest(createUserSchema),
+  login: validateRequest(loginSchema),
+  verifyEmail: validateRequest(verifyEmailSchema),
+  getUsers: validateRequest(getUsersSchema),
+  getById: validateRequest(getUserByIdSchema),
+  delete: validateRequest(deleteUserSchema)
+};
 
-const UserRoutes = express.Router();
+// File upload middleware
+const upload = {
+  avatar: UploadFile('avatar', 'users')
+};
 
-UserRoutes.post(
-  '/auth/register',
-  UploadFile('avatar', 'users'),
-  attachAvatar,
-  validateRequest(createUserSchema),
-  register
-)
-UserRoutes.post('/auth/login', validateRequest(loginSchema), login);
+// Auth routes
+userRouter
+  .route('/auth/register')
+  .post(upload.avatar, attachAvatar, validate.create, register);
 
-UserRoutes.post('/auth/refresh-token', refreshToken);
-UserRoutes.post('/auth/logout', authenticateUser, logout);
-// Protected routes
-UserRoutes.get(
-  '/verify-email/:token',
-  validateRequest(verifyEmailSchema),
-  verifyEmail
-);
-// Protected routes
-UserRoutes.get(
-  '/get',
-  authenticateUser,
-  validateRequest(getUsersSchema),
-  getUsers
-);
+userRouter
+  .route('/auth/login')
+  .post(validate.login, login);
 
-UserRoutes.get(
-  '/:id',
-  authenticateUser,
-  validateRequest(getUserByIdSchema),
-  getUserById
-);
+userRouter
+  .route('/auth/refresh-token')
+  .post(refreshToken);
 
-// UserRoutes.patch(
-//   '/users/:id',
-//   authenticateUser,
-//   validateRequest(updateProfileSchema),
-//   upload.single('avatar'),
-//   updateProfile
-// );
+userRouter
+  .route('/auth/logout')
+  .post(authenticateUser, logout);
 
-// // Admin routes
-UserRoutes.delete(
-  '/:id',
-  authenticateUser,
-  allowedFor('admin'),
-  validateRequest(deleteUserSchema)
-  // deleteUser
-);
+// Email verification
+userRouter
+  .route('/verify-email/:token')
+  .get(validate.verifyEmail, verifyEmail);
 
-UserRoutes.delete(
-  '/delete/all',
-  // authenticateUser,
-  // allowedFor('admin'),
-  async (req, res) => {
-    await UserModel.deleteMany({});
-    await RefreshTokenModel.deleteMany({});
-    res.status(200).json({ message: 'All users deleted successfully' });
-  }
-);
+// Protected user routes
+userRouter
+  .route('/get')
+  .get(authenticateUser, validate.getUsers, getUsers);
 
-export default UserRoutes;
+userRouter
+  .route('/:id')
+  .get(authenticateUser, validate.getById, getUserById)
+  .delete(authenticateUser, allowedFor('admin'), validate.delete);
+
+// Admin routes
+const adminRouter = express.Router();
+
+adminRouter
+  .route('/delete/all')
+  .delete(
+    authenticateUser,
+    checkRole('admin'),
+    async (req, res) => {
+      await UserModel.deleteMany({});
+      await RefreshTokenModel.deleteMany({});
+      res.status(200).json({ message: 'All users deleted successfully' });
+    }
+  );
+
+// Attach admin routes
+userRouter.use('/admin', adminRouter);
+
+export default userRouter;

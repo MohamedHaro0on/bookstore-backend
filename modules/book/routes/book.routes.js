@@ -7,14 +7,33 @@ import {
   getBookById,
   updateBook
 } from '../controller/book.controller.js';
-import {createBookSchema, deleteBookSchema, getBookSchema, updateBookSchema} from '../validation/book.validation.js';
+import {
+  createBookSchema,
+  deleteBookSchema,
+  getBookSchema,
+  updateBookSchema
+} from '../validation/book.validation.js';
 
 const bookRouter = express.Router();
 
-bookRouter.post('/', validateRequest(createBookSchema), createBook);
-bookRouter.get('/', getAllBooks);
-bookRouter.get('/:id', validateRequest(getBookSchema), getBookById);
-bookRouter.put('/:id', validateRequest(updateBookSchema), updateBook);
-bookRouter.delete('/:id', validateRequest(deleteBookSchema), deleteBook);
+// Middleware object for cleaner code
+const validate = {
+  create: validateRequest(createBookSchema),
+  get: validateRequest(getBookSchema),
+  update: validateRequest(updateBookSchema),
+  delete: validateRequest(deleteBookSchema)
+};
+
+// Chain routes with middleware object
+bookRouter
+  .route('/')
+  .post(validate.create, createBook)
+  .get(getAllBooks);
+
+bookRouter
+  .route('/:id')
+  .get(validate.get, getBookById)
+  .put(validate.update, updateBook)
+  .delete(validate.delete, deleteBook);
 
 export default bookRouter;

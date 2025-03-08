@@ -21,11 +21,11 @@ export const addToCartSchema = {
 // Create Cart Validation Schema
 export const createCartSchema = {
   body: Joi.object({
-    items: Joi.array().items(cartItemSchema).min(1).required(),
-    // totalAmount: Joi.number().min(0).required(),
-    status: Joi.string()
-      .valid('active', 'abandoned', 'completed')
-      .default('active')
+    // items: Joi.array().items(cartItemSchema).min(1).required(),
+    // // totalAmount: Joi.number().min(0).required(),
+    // status: Joi.string()
+    //   .valid('active', 'abandoned', 'completed')
+    //   .default('active')
   })
 };
 

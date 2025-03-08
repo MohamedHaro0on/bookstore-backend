@@ -174,11 +174,6 @@ const authenticateUser = expressAsyncHandler(async (req, res, next) => {
       );
     }
 
-    // Log for debugging
-    console.log('Authenticated user:', {
-      userId: req.user.userId,
-      role: req.user.role
-    });
 
     next();
   } catch (error) {

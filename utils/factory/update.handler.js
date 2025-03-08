@@ -11,7 +11,6 @@ const updateHandler = (Model) =>
     if (req.user.role !== 'admin') {
       query.user = req.user.userId;
     }
-    console.log("this is the query object : ", query);
     const updatedDocument = await Model.findOneAndUpdate(
       query,
       req.body,

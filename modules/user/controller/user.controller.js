@@ -24,7 +24,6 @@ const update = updateHandler(UserModel)
 // Login user
 const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log("this is the request body ", req.body);
   const user = await UserModel.findOne({ email });
   if (!user) {
     return next(new ApiError("Invalid Credentials", StatusCodes.UNAUTHORIZED));

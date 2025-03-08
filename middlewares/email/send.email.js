@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (email, subject, HTMLFORM) => {
-  console.log("this is the id from the send Email function ", email)
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -23,7 +22,6 @@ const sendEmail = async (email, subject, HTMLFORM) => {
       html: HTMLFORM(emailToken)
     });
   } catch (error) {
-    console.log('this is the error ', error);
   }
 };
 export default sendEmail;

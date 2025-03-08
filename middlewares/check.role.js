@@ -3,7 +3,6 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../utils/api.error.js';
 
 const checkRole = (...roles) => expressAsyncHandler(async (req, res, next) => {
-  console.log("this is the use role : ", req.user);
   if (req.user && roles.includes(req.user.role)) {
     return next();
   };

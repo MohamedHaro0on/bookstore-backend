@@ -7,7 +7,6 @@ import OrderModel from "../modules/order/model/order.model.js";
 export const validateUserAndCart = async (userId, session) => {
     const user = await UserModel.findById(userId).session(session);
     if (!user) throw new ApiError("❌ User not found", StatusCodes.NOT_FOUND);
-    console.log("this is the user : ", user);
     if (user.cart && user.cart.items.length === 0) throw new ApiError("❌ User cart is empty", StatusCodes.BAD_REQUEST);
     return user;
 };

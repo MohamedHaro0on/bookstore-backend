@@ -6,7 +6,7 @@ const CartItemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Book',
     required: true,
-    unique: true,
+    // unique: true,
   },
   quantity: {
     type: Number,
@@ -31,7 +31,7 @@ const CartSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    // required: true,
     // unique: true
   },
   items: {

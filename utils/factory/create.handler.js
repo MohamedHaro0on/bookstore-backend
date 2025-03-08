@@ -4,7 +4,9 @@ import ApiError from '../api.error.js';
 
 const createHandler = (Model) =>
   expressAsyncHandler(async (req, res, next, error) => {
-    console.log('Model : ', req.body);
+    if (req.user) {
+      req.body.user = req.user.userId;
+    };
     const createdDocument = await Model.create(req.body);
 
     if (createdDocument) {
@@ -13,8 +15,6 @@ const createHandler = (Model) =>
         data: createdDocument
       });
     }
-
-    console.log('Model : ', req.body);
 
     // If no ${Model.modelName} was found to update
     return next(

@@ -7,7 +7,8 @@ import {
   getCartById,
   updateCart,
   addItems,
-  removeItems
+  removeItems,
+  getMyCart
 } from '../controller/cart.controller.js';
 import {
   createCartSchema,
@@ -35,9 +36,9 @@ const validate = {
 // cartRouter.use(authenticateUser);
 
 // User routes
-// cartRouter
-//   .route('/')
-//   .post(validate.create, createCart);
+cartRouter
+  .route('/')
+  .post(authenticateUser, validate.create, createCart);
 
 cartRouter
   .route('/add-to-cart')
@@ -59,6 +60,9 @@ cartRouter
     res.json({ message: "All carts deleted" });
   });
 
+cartRouter
+  .route('/my-cart')
+  .get(authenticateUser, getMyCart);
 // Individual cart routes
 cartRouter
   .route('/:id')

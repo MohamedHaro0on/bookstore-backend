@@ -4,7 +4,6 @@ import multer from 'multer';
 
 const UploadFile = (fieldName, dirName) => {
     // Ensure the uploads directory exists
-    console.log("this is the field Name : ", fieldName, " this is the dirName : ", dirName);
     const __dirname = process.cwd();
     const uploadsDir = path.join(__dirname, `public/${dirName}/`);
     if (!fs.existsSync(uploadsDir)) {

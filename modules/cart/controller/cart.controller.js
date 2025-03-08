@@ -8,6 +8,7 @@ import updateHandler from '../../../utils/factory/update.handler.js';
 import CartModel from '../model/cart.model.js';
 import ApiError from '../../../utils/api.error.js';
 import { StatusCodes } from 'http-status-codes';
+import getHandler from '../../../utils/factory/get.handler.js';
 
 export const createCart = createHandler(CartModel);
 
@@ -23,9 +24,7 @@ export const deleteCart = deleteHandler(CartModel);
 export const addItems = expressAsyncHandler(async (req, res, next) => {
     const { user } = req;
     const { items } = req.body;
-    console.log("this is hte user : ", user);
     const userCart = await CartModel.findOne({ user: user.userId, status: "active" })
-    console.log("this is the userCart : ", userCart);
     if (!userCart) {
         return next(new ApiError("user's cart is not found ", StatusCodes.BAD_REQUEST))
     }
@@ -54,7 +53,6 @@ export const removeItems = expressAsyncHandler(async (req, res, next) => {
     userCart.items = userCart.items.filter(item => {
         items.includes(object => object.book === item.book);
     });
-    console.log("this is the user cart : ", userCart);
     // Save the updated cart
     const updatedCart = await userCart.save();
 
@@ -64,3 +62,5 @@ export const removeItems = expressAsyncHandler(async (req, res, next) => {
     });
 
 })
+
+export const getMyCart = getHandler(CartModel, null, true);

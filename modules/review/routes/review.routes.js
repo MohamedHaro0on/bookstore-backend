@@ -29,7 +29,7 @@ reviewRouter
 reviewRouter
     .route('/:id')
     .get(validate.get, reviewController.get)
-    .patch(authenticateUser, validate.update, reviewController.update)
+    .put(authenticateUser, validate.update, reviewController.update)
     .delete(authenticateUser, validate.delete, reviewController.remove);
 
 export default reviewRouter;

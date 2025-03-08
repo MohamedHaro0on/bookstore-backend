@@ -1,15 +1,15 @@
 import asyncHandler from "express-async-handler";
 import Order from "../model/order.model.js";
 import ApiError from "../../../utils/api.error.js";
-import GetHandler from "../../../utils/factory/get.handler.js";
 import OrderModel from "../model/order.model.js";
 import GetByIdHandler from "../../../utils/factory/get.by.id.handler.js";
 import { StatusCodes } from "http-status-codes";
-import { checkStockAvailability, getOrders, prepareBooksOrdered, updateBookStock, validateUserAndCart } from "../../../utils/order.helpers.js";
+import { checkStockAvailability, prepareBooksOrdered, updateBookStock, validateUserAndCart } from "../../../utils/order.helpers.js";
+import getHandler from "../../../utils/factory/get.handler.js";
 
 
 export const create = asyncHandler(async (req, res, next) => {
-  const userId = req.body.user;
+  const { userId } = req.user;
   const session = await OrderModel.startSession();
   session.startTransaction();
 
@@ -57,34 +57,17 @@ export const create = asyncHandler(async (req, res, next) => {
 });
 
 
-export const getAll = GetHandler(OrderModel);
+export const getAll = getHandler(OrderModel);
 
 export const getById = GetByIdHandler(OrderModel);
 
-export const getOrdersByUserId = asyncHandler(async (req, res, next) => {
-  const orders = await getOrders(req.params.id);
-  if (!orders) next(new ApiError("Order not found", StatusCodes.NOT_FOUND));
-  res.status(StatusCodes.OK).json({
-    result: orders.length,
-    message: "📦 Orders retrieved successfully!",
-    data: orders,
-  });
-});
+export const getMyOrders = getHandler(OrderModel, null, true);
 
-export const getMyOrders = asyncHandler(async (req, res, next) => {
-  const orders = await getOrders(req.user._id);
-  if (!orders) next(new ApiError("Order not found", StatusCodes.NOT_FOUND));
-  res.status(StatusCodes.OK).json({
-    result: orders.length,
-    message: "📦 Orders retrieved successfully!",
-    data: orders,
-  });
-});
+
 
 export const updateOrderStatus = asyncHandler(async (req, res, next) => {
   const { id: orderId } = req.params;
   const { status } = req.body;
-
   const session = await OrderModel.startSession();
   session.startTransaction();
 
@@ -121,3 +104,4 @@ export const updateOrderStatus = asyncHandler(async (req, res, next) => {
     session.endSession();
   }
 });
+

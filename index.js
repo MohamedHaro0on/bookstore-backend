@@ -54,7 +54,6 @@ app.use(errorHandler);
 
 // LISTEN
 const server = app.listen(process.env.PORT, () => {
-  console.log('this is the console app on : ', process.env.PORT);
 });
 
 // handle rejections outside of the express
@@ -62,7 +61,6 @@ process.on('unhandledRejection', (err) => {
   console.error('unhandledRejection', err);
   console.error('unhandledRejection', err.name, '  message : ', err?.message);
   server.close(() => {
-    console.log('the application is shutting down');
     process.exit(1);
   });
 });

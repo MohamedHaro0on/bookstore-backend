@@ -19,8 +19,6 @@ const getUserCart = expressAsyncHandler(async (req, res, next) => {
         );
     }
     let cart = userDetails.cart;
-    console.log("this is the user's cart : ", cart);
-    console.log("this is the user details : ", userDetails);
     if (cart.items.length === 0) {
         return next(
             new ApiError(

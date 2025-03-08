@@ -92,9 +92,6 @@ userSchema.virtual('cart', {
   justOne: true
 });
 
-userSchema.post("save", (doc) => {
-  console.log("this is the document : ", doc);
-})
 
 // Middleware to automatically populate cart
 userSchema.pre('findOne', async function (next) {

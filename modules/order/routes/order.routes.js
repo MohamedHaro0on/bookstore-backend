@@ -1,6 +1,6 @@
 import express from 'express';
 import validateRequest from '../../../middlewares/validate.request.js';
-import { create, getAll, getById, updateOrderStatus } from '../controller/order.controller.js';
+import { create, getAll, getById, getMyOrders, updateOrderStatus } from '../controller/order.controller.js';
 import orderValidation from '../validation/order.validation.js';
 import CheckPreviousOrders from '../../../middlewares/check.previous.orders.js';
 import OrderModel from '../model/order.model.js';
@@ -27,12 +27,16 @@ orderRouter
     .post(authenticateUser, validate.create, CheckPreviousOrders, create)
     .get(authenticateUser, checkRole('admin'), validate.getAll, getAll);
 
+orderRouter
+    .route('/my-orders')
+    .get(authenticateUser, validate.getAll, getMyOrders);
+
 
 orderRouter
     .route('/:id')
     .get(authenticateUser, validate.getById, getById)
     .patch(authenticateUser, checkRole('admin'), validate.update, updateOrderStatus)
-// .delete(authenticateUser, checkRole('admin'), validate.delete);
+// .delete(authenticateUser, checkRole('admin'), );
 
 
 // Admin routes
@@ -56,6 +60,15 @@ orderRouter
         });
     });
 
+orderRouter
+    .route('/admin/update-status')
+    .put(authenticateUser, checkRole('admin'), async (req, res) => {
+        await OrderModel.deleteMany({});
+        res.status(200).json({
+            status: 'success',
+            message: 'All orders deleted successfully'
+        });
+    });
 
 
 // orderRoutes.get('/', validateRequest(orderValidation.getAllSchema), orderController.get);

@@ -60,6 +60,7 @@ userRouter
   .get(validate.verifyEmail, verifyEmail);
 
 
+
 userRouter
   .route('/:id')
   .get(authenticateUser, validate.getById, getById)
@@ -67,13 +68,21 @@ userRouter
 
 
 
+
+
 // Admin routes
 const adminRouter = express.Router();
 
 // Protected user routes
-adminRouter
-  .route('/get-all-users')
-  .get(authenticateUser, checkRole('admin'), validate.getUsers, getAll);
+userRouter
+  .route('/get/all')
+  .get(
+    authenticateUser,
+    checkRole('admin'),
+    validate.getUsers,
+    getAll
+  );
+
 
 adminRouter
   .route('/delete-all-users')

@@ -36,9 +36,9 @@ const validate = {
 // cartRouter.use(authenticateUser);
 
 // User routes
-cartRouter
-  .route('/')
-  .post(authenticateUser, validate.create, createCart);
+// cartRouter
+//   .route('/')
+//   .post(authenticateUser, validate.create, createCart);
 
 cartRouter
   .route('/add-to-cart')

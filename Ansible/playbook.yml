@@ -1,0 +1,74 @@
+---
+- name: Setup Bookstore Backend on Ubuntu EC2
+  hosts: all
+  remote_user: ubuntu
+  become: yes
+
+  tasks:
+    - name: Update APT package list
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Add Repositories for Node and Redis 
+      ansible.builtin.shell: |
+        curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &&
+        curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg &&
+        sudo chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg &&
+        echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+      args:
+        executable: /bin/bash
+
+    - name: Install Required Dependencies
+      ansible.builtin.apt:
+        name:
+          - curl
+          - git
+          - nodejs
+          - lsb-release
+          - gpg
+          - redis
+        state: present
+    
+    - name: Enable and start Redis Server
+      ansible.builtin.shell: |
+        sudo systemctl enable redis-server &&
+        sudo systemctl start redis-server
+
+    - name: Clone the Bookstore Backend Repository
+      ansible.builtin.git:
+        repo: https://github.com/MohamedHaro0on/bookstore-backend.git
+        dest: /home/ubuntu/bookstore-backend
+        version: main
+        force: yes
+        update: yes
+      become_user: ubuntu
+
+    - name: Set Permissions for Bookstore Backend
+      ansible.builtin.file:
+        path: /home/ubuntu/bookstore-backend
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+        recurse: yes
+
+    - name: Copy .env file
+      ansible.builtin.copy:
+        src: /home/mohamed/Data/.env
+        dest: /home/ubuntu/bookstore-backend/.env
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: Verify .env file exists
+      ansible.builtin.stat:
+        path: /home/ubuntu/bookstore-backend/.env
+      register: env_file
+
+    - name: Install NPM Dependencies
+      ansible.builtin.command: npm install
+      args:
+        chdir: /home/ubuntu/bookstore-backend
+      become_user: ubuntu
+      when: env_file.stat.exists
+
+

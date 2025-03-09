@@ -46,7 +46,7 @@ app.use('/users/', UserRoutes);
 app.use('/books/', bookRouter);
 app.use('/carts/', cartRouter);
 app.use('/reviews/', ReviewRoutes);
-app.use("/orders", orderRoutes)
+app.use("/orders/", orderRoutes)
 // Not implemented Errors :
 app.all('*', routeNotImplementedHandler);
 // Global error handling middleware for express ;

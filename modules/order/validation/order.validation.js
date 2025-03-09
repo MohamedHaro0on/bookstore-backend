@@ -46,7 +46,7 @@ const deleteSchema = {
 };
 
 
-const getAllSchema = {
+const getSchema = {
   query: joi.object({})
 };
 
@@ -56,11 +56,17 @@ const getByIdSchema = joi.object({
   })
 });
 
+const checkoutSchema = joi.object({
+  params: joi.object({
+    id: ObjectId().required()
+  })
+});
 export default {
   createSchema,
-  getAllSchema,
+  getSchema,
   getByIdSchema,
   deleteSchema,
   updateSchema,
-  updateOrderStatusSchema
+  updateOrderStatusSchema,
+  checkoutSchema
 };

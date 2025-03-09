@@ -3,9 +3,9 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
 import ApiFeatures from '../api.featuers.js';
 
-const getHandler = (Model, object, user) =>
+const getHandler = (Model, object, withOwnerShip) =>
   expressAsyncHandler(async (req, res) => {
-    if (user) {
+    if (withOwnerShip) {
       req.query.user = req.user.userId;
     }
     let apiFeatures = new ApiFeatures(Model.find(), req.query)

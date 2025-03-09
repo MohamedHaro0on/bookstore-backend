@@ -1,11 +1,11 @@
 import asyncHandler from "express-async-handler";
-import Order from "../model/order.model.js";
 import ApiError from "../../../utils/api.error.js";
 import OrderModel from "../model/order.model.js";
 import GetByIdHandler from "../../../utils/factory/get.by.id.handler.js";
 import { StatusCodes } from "http-status-codes";
 import { checkStockAvailability, prepareBooksOrdered, updateBookStock, validateUserAndCart } from "../../../utils/order.helpers.js";
 import getHandler from "../../../utils/factory/get.handler.js";
+import Stripe from 'stripe';
 
 
 
@@ -98,3 +98,40 @@ export const updateOrderStatus = asyncHandler(async (req, res, next) => {
   }
 });
 
+
+
+export const checkout = asyncHandler(async (req, res, next) => {
+  const stripe = new Stripe(process.env.SECRET_KEY)
+  const { id } = req.params;
+  const order = await OrderModel.findById(id).populate("user");
+  if (!order) {
+    return next(ApiError("Order is not Found", StatusCodes.NOT_FOUND));
+  }
+  const user = order.user;
+  console.log("this is the order : ", order);
+  console.log("this is the total price : ", order.totalPrice);
+  console.log("this is the first Name : ", user.firstName, " last Name : ", user.lastName, "email : ", user.email)
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: 'egp',
+          unit_amount: order.totalPrice * 100,
+          product_data: {
+            name: `${user.firstName} ${user.lastName}`
+          }
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: `https://www.google.com`,
+    cancel_url: `https://www.google.com`,
+    customer_email: user.email,
+    client_reference_id: id,
+  });
+  res.status(StatusCodes.ACCEPTED).json({
+    message: "Successfull",
+    data: session,
+  })
+})

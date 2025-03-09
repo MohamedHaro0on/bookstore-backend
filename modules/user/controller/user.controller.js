@@ -12,7 +12,6 @@ import ApiError from '../../../utils/api.error.js';
 import updateHandler from '../../../utils/factory/update.handler.js';
 import { userLogger } from '../../../utils/logger.js';
 
-
 // Register a new user
 const register = createHandler(UserModel);
 // Get a specfic user :

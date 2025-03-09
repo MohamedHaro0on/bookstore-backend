@@ -1,6 +1,6 @@
 import express from 'express';
 import validateRequest from '../../../middlewares/validate.request.js';
-import { create, getAll, getById, getMyOrders, updateOrderStatus } from '../controller/order.controller.js';
+import { checkout, create, getAll, getById, getMyOrders, updateOrderStatus } from '../controller/order.controller.js';
 import orderValidation from '../validation/order.validation.js';
 import CheckPreviousOrders from '../../../middlewares/check.previous.orders.js';
 import OrderModel from '../model/order.model.js';
@@ -12,9 +12,10 @@ const orderRouter = express.Router();
 // Middleware object
 const validate = {
     create: validateRequest(orderValidation.createSchema),
-    getAll: validateRequest(orderValidation.getAllSchema),
+    get: validateRequest(orderValidation.getSchema),
     getById: validateRequest(orderValidation.getByIdSchema),
     update: validateRequest(orderValidation.updateOrderStatusSchema),
+    checkout: validateRequest(orderValidation.checkoutSchema),
     delete: validateRequest(orderValidation.deleteSchema)
 };
 
@@ -25,12 +26,15 @@ const validate = {
 orderRouter
     .route('/')
     .post(authenticateUser, validate.create, CheckPreviousOrders, create)
-    .get(authenticateUser, checkRole('admin'), validate.getAll, getAll);
+    .get(authenticateUser, checkRole('admin'), validate.get, getAll);
 
 orderRouter
     .route('/my-orders')
-    .get(authenticateUser, validate.getAll, getMyOrders);
+    .get(authenticateUser, validate.get, getMyOrders);
 
+orderRouter
+    .route('/checkout/:id')
+    .post(authenticateUser, validate.checkout, checkout)
 
 orderRouter
     .route('/:id')

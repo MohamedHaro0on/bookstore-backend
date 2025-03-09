@@ -1,6 +1,7 @@
 import expressAsyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
+import { redisClient } from '../../configurations/config.js';
 
 const deleteHandler = (Model) =>
   expressAsyncHandler(async (req, res, next) => {
@@ -14,6 +15,10 @@ const deleteHandler = (Model) =>
       query.user = req.user.userId;
     }
 
+    // Invalidate the cache for all documents
+    await redisClient.del(`${Model.modelName}:all`);
+
+    // Invalidate the cache for the deleted document
     const deleted = await Model.findOneAndDelete(query);
 
     if (!deleted) {
@@ -24,6 +29,8 @@ const deleteHandler = (Model) =>
         StatusCodes.NOT_FOUND
       );
     }
+
+    await redisClient.del(`${Model.modelName}:${id}`);
 
     res.status(StatusCodes.OK).json({
       status: 'success',

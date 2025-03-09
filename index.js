@@ -3,7 +3,7 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
-import DBconnection from './configurations/config.js';
+import {DBconnection, redisConnection} from './configurations/config.js';
 import errorHandler from './handlers/error.handler.js';
 import routeNotImplementedHandler from './handlers/not.implemented.route.handler.js';
 import bookRouter from './modules/book/routes/book.routes.js';
@@ -18,6 +18,7 @@ const app = express();
 config(); // to Setup the dotenv  ;
 
 DBconnection();
+redisConnection();
 
 // Adding middleware for CORS, JSON parsing, and cookies
 app.use(

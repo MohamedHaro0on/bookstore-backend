@@ -2,6 +2,7 @@ import expressAsyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
 import ApiFeatures from '../api.featuers.js';
+import { redisClient } from '../../configurations/config.js';
 
 const getHandler = (Model, object, withOwnerShip) =>
   expressAsyncHandler(async (req, res) => {
@@ -20,6 +21,10 @@ const getHandler = (Model, object, withOwnerShip) =>
     const { mongooseQuery, paginationResult } = apiFeatures;
     const data = await mongooseQuery;
     if (data) {
+      await redisClient.set(`${Model.modelName}:all`, JSON.stringify(data), {
+        EX: 3600,
+      });
+
       res.status(StatusCodes.OK).json({
         message: ` ${Model.modelName} Fetched Successfully`,
         ...paginationResult,

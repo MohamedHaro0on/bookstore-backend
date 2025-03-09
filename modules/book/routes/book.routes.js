@@ -1,5 +1,7 @@
 import express from 'express';
 import validateRequest from '../../../middlewares/validate.request.js';
+import { cacheByIdMiddleware, cacheAllMiddleware } from '../../../middlewares/cache.js';
+import BookModel from '../model/book.model.js'
 import {
   create,
   getAll,
@@ -39,11 +41,11 @@ bookRouter
     validate.create,
     create
   )
-  .get(getAll);
+  .get(cacheAllMiddleware(BookModel), getAll);
 
 bookRouter
   .route('/:id')
-  .get(validate.get, getById)
+  .get(validate.get, cacheByIdMiddleware(BookModel), getById)
   .put(
     authenticateUser,
     UploadFile("img", "books"),

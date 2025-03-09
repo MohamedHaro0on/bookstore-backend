@@ -1,6 +1,7 @@
 import expressAsyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../api.error.js';
+import { redisClient } from '../../configurations/config.js';
 
 const updateHandler = (Model) =>
   expressAsyncHandler(async (req, res, next) => {
@@ -28,6 +29,17 @@ const updateHandler = (Model) =>
         StatusCodes.NOT_FOUND
       );
     }
+
+    // Invalidate the cache for all documents
+    await redisClient.del(`${Model.modelName}:all`);
+    
+    // Invalidate the updated document
+    await redisClient.del(`${Model.modelName}:${id}`);
+      
+    // Cache the updated document
+    await redisClient.set(`${Model.modelName}:${id}`, JSON.stringify(data), {
+      EX: 3600,
+    });
 
     res.status(StatusCodes.OK).json({
       status: 'success',

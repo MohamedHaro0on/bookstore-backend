@@ -1,6 +1,9 @@
 import express from 'express';
 import validateRequest from '../../../middlewares/validate.request.js';
 import reviewController from '../controller/review.controller.js';
+import { cacheByIdMiddleware, cacheAllMiddleware } from '../../../middlewares/cache.js';
+import ReviewModel from '../model/review.model.js'
+
 import {
     createReviewSchema,
     deleteReviewSchema,
@@ -22,13 +25,13 @@ const validate = {
 // Public routes
 reviewRouter
     .route('/')
-    .get(reviewController.get)
+    .get(cacheAllMiddleware(ReviewModel), reviewController.get)
     .post(authenticateUser, validate.create, reviewController.create);
 
 // Protected routes with ID
 reviewRouter
     .route('/:id')
-    .get(validate.get, reviewController.get)
+    .get(validate.get, cacheByIdMiddleware(ReviewModel), reviewController.get)
     .put(authenticateUser, validate.update, reviewController.update)
     .delete(authenticateUser, validate.delete, reviewController.remove);
 

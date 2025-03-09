@@ -10,6 +10,7 @@ import {
   refreshToken,
   register,
   verifyEmail,
+  update,
 } from '../controller/user.controller.js';
 import UserModel from '../model/user.model.js';
 import {
@@ -18,6 +19,7 @@ import {
   getUserByIdSchema,
   getUsersSchema,
   loginSchema,
+  updateProfileSchema,
   verifyEmailSchema
 } from '../validation/user.validation.js';
 import UploadFile from '../../../middlewares/file.upload.js';
@@ -33,7 +35,8 @@ const validate = {
   verifyEmail: validateRequest(verifyEmailSchema),
   getUsers: validateRequest(getUsersSchema),
   getById: validateRequest(getUserByIdSchema),
-  delete: validateRequest(deleteUserSchema)
+  delete: validateRequest(deleteUserSchema),
+  update: validateRequest(updateProfileSchema)
 };
 
 
@@ -54,11 +57,19 @@ userRouter
   .route('/auth/logout')
   .post(authenticateUser, logout);
 
+userRouter
+  .route('/auth/update/:id')
+  .put(authenticateUser, UploadFile('avatar', 'users'), attachImage('avatar'), validate.update, update);
+
+
 // Email verification
 userRouter
   .route('/verify-email/:token')
   .get(validate.verifyEmail, verifyEmail);
 
+userRouter
+  .route('/auth/update/:id')
+  .put(UploadFile('avatar', 'users'), attachImage('avatar'), validate.update, update);
 
 
 userRouter

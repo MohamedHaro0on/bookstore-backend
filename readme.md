@@ -56,7 +56,7 @@ This project simulates a real-life e-commerce platform where users can browse bo
 1. **Clone the Repository**
    ```bash
    git clone https://github.com/MohamedHaro0on/bookstore-backend.git
-   cd online-bookstore
+   cd bookstore-backend
    ```
 
 2. **Install Dependencies**

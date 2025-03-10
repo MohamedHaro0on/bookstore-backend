@@ -1,14 +1,14 @@
 import expressAsyncHandler from 'express-async-handler';
-import { StatusCodes } from 'http-status-codes';
+import {StatusCodes} from 'http-status-codes';
+import {redisClient} from '../../configurations/config.js';
 import ApiError from '../api.error.js';
-import { redisClient } from '../../configurations/config.js';
 
 const deleteHandler = (Model) =>
-  expressAsyncHandler(async (req, res, next) => {
-    const { id } = req.params; // Changed from req.query to req.params for REST conventions
+  expressAsyncHandler(async (req, res) => {
+    const {id} = req.params; // Changed from req.query to req.params for REST conventions
 
     // Build query based on user role [ OwnerShip ]
-    const query = { _id: id };
+    const query = {_id: id};
 
     // Add user check if not admin
     if (req.user.role !== 'admin') {

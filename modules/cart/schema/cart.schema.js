@@ -5,7 +5,7 @@ const CartItemSchema = new mongoose.Schema({
   book: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Book',
-    required: true,
+    required: true
     // unique: true,
   },
   quantity: {
@@ -30,16 +30,16 @@ const CartItemSchema = new mongoose.Schema({
 const CartSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'User'
     // required: true,
     // unique: true
   },
   items: {
     type: [CartItemSchema],
     validate: {
-      validator: function (items) {
+      validator(items) {
         if (items.length > 0) {
-          const bookIds = items.map(item => item.book.toString());
+          const bookIds = items.map((item) => item.book.toString());
           return new Set(bookIds).size === bookIds.length;
         }
       },

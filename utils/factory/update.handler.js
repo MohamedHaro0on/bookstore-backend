@@ -1,14 +1,14 @@
 import expressAsyncHandler from 'express-async-handler';
-import { StatusCodes } from 'http-status-codes';
+import {StatusCodes} from 'http-status-codes';
+import {redisClient} from '../../configurations/config.js';
 import ApiError from '../api.error.js';
-import { redisClient } from '../../configurations/config.js';
 
 const updateHandler = (Model) =>
-  expressAsyncHandler(async (req, res, next) => {
-    const { id } = req.params;
+  expressAsyncHandler(async (req, res) => {
+    const {id} = req.params;
 
     // Build query based on user role [Ownership]
-    const query = { _id: id };
+    const query = {_id: id};
     if (req.user.role !== 'admin') {
       query.user = req.user.userId;
     }
@@ -16,7 +16,7 @@ const updateHandler = (Model) =>
       query,
       req.body,
       {
-        new: true,      // Return the updated document
+        new: true, // Return the updated document
         runValidators: true // Run schema validators
       }
     );
@@ -32,13 +32,13 @@ const updateHandler = (Model) =>
 
     // Invalidate the cache for all documents
     await redisClient.del(`${Model.modelName}:all`);
-    
+
     // Invalidate the updated document
     await redisClient.del(`${Model.modelName}:${id}`);
-      
+
     // Cache the updated document
-    await redisClient.set(`${Model.modelName}:${id}`, JSON.stringify(data), {
-      EX: 3600,
+    await redisClient.set(`${Model.modelName}:${id}`, JSON.stringify(updatedDocument), {
+      EX: 3600
     });
 
     res.status(StatusCodes.OK).json({

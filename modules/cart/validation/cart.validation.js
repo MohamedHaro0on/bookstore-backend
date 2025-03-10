@@ -15,9 +15,9 @@ const cartItemSchema = Joi.object({
 
 export const addToCartSchema = {
   body: Joi.object({
-    items: Joi.array().items(cartItemSchema).min(1).required(),
+    items: Joi.array().items(cartItemSchema).min(1).required()
   })
-}
+};
 // Create Cart Validation Schema
 export const createCartSchema = {
   body: Joi.object({

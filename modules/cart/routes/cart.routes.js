@@ -1,25 +1,24 @@
 import express from 'express';
+import authenticateUser from '../../../middlewares/authenticate.user.js';
+import checkRole from '../../../middlewares/check.role.js';
 import validateRequest from '../../../middlewares/validate.request.js';
 import {
-  createCart,
+  addItems,
   deleteCart,
   getAllCarts,
   getCartById,
-  updateCart,
-  addItems,
+  getMyCart,
   removeItems,
-  getMyCart
+  updateCart
 } from '../controller/cart.controller.js';
+import CartModel from '../model/cart.model.js';
 import {
+  addToCartSchema,
   createCartSchema,
   deleteCartSchema,
   getCartSchema,
-  updateCartSchema,
-  addToCartSchema
+  updateCartSchema
 } from '../validation/cart.validation.js';
-import CartModel from '../model/cart.model.js';
-import authenticateUser from '../../../middlewares/authenticate.user.js';
-import checkRole from '../../../middlewares/check.role.js';
 
 const cartRouter = express.Router();
 
@@ -57,7 +56,7 @@ cartRouter
   .route('/admin/deleteAll')
   .delete(authenticateUser, checkRole('admin'), async (req, res) => {
     await CartModel.deleteMany({});
-    res.json({ message: "All carts deleted" });
+    res.json({message: 'All carts deleted'});
   });
 
 cartRouter

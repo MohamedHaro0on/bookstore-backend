@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-import ApiError from '../../../utils/api.error.js';
-import { StatusCodes } from 'http-status-codes';
 
 // Create schema for book item in the order
 const orderItemSchema = new mongoose.Schema({
@@ -51,11 +49,11 @@ const orderSchema = new mongoose.Schema(
       default: 'pending'
     }
   },
-  { timestamps: true }
+  {timestamps: true}
 );
 
 // Add indexes for frequently queried fields
-orderSchema.index({ user: 1, createdAt: -1 });
-orderSchema.index({ status: 1 });
+orderSchema.index({user: 1, createdAt: -1});
+orderSchema.index({status: 1});
 
 export default orderSchema;

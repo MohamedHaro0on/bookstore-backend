@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
-      trim: true,
+      trim: true
     },
     isEmailVerfied: {
       type: Boolean,
@@ -51,16 +51,16 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toObject: { virtuals: true } // Add this
+    toObject: {virtuals: true} // Add this
   }
 );
 
 // userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
+userSchema.index({username: 1});
 
 userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 8);
-  await CartModel.create({ user: this._id, status: 'active', items: [] });
+  await CartModel.create({user: this._id, status: 'active', items: []});
   next();
 });
 
@@ -71,7 +71,6 @@ userSchema.post('save', async (doc, _) => {
     emailTemplate
   );
 });
-
 
 userSchema.methods.verifyPassword = async function (password) {
   return bcrypt.compareSync(password, this.password);
@@ -92,7 +91,6 @@ userSchema.virtual('cart', {
   justOne: true
 });
 
-
 // Middleware to automatically populate cart
 userSchema.pre('findOne', async function (next) {
   this.populate({
@@ -107,6 +105,5 @@ userSchema.pre('findOne', async function (next) {
   });
   next();
 });
-
 
 export default userSchema;

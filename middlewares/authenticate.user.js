@@ -1,8 +1,10 @@
+import process from 'node:process';
 import expressAsyncHandler from 'express-async-handler';
-import { StatusCodes } from 'http-status-codes';
+import {StatusCodes} from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import RefreshTokenModel from '../modules/refresh_token/model/refresh_token.model.js';
 import ApiError from '../utils/api.error.js';
+import {userLogger} from '../utils/logger.js';
 
 const generateNewAccessToken = (user) => {
   return jwt.sign(
@@ -27,7 +29,7 @@ const validateRefreshToken = async (refreshToken) => {
       userId: decoded.userId,
       token: refreshToken,
       isValid: true,
-      expiresAt: { $gt: new Date() }
+      expiresAt: {$gt: new Date()}
     }); // Populate user to get role
 
     if (!storedToken) {
@@ -86,7 +88,7 @@ const setTokens = async (res, user, newRefreshToken = null) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: parseInt(process.env.REFRESH_TOKEN_DAYS) * 24 * 60 * 60 * 1000
+      maxAge: Number.parseInt(process.env.REFRESH_TOKEN_DAYS) * 24 * 60 * 60 * 1000
     });
   }
 };
@@ -99,7 +101,7 @@ const authenticateUser = expressAsyncHandler(async (req, res, next) => {
 
     // Require refresh token
     if (!refreshToken) {
-      throw new ApiError("Authentication required. Please login.", StatusCodes.UNAUTHORIZED);
+      throw new ApiError('Authentication required. Please login.', StatusCodes.UNAUTHORIZED);
     }
 
     // Validate refresh token
@@ -111,23 +113,23 @@ const authenticateUser = expressAsyncHandler(async (req, res, next) => {
       switch (refreshTokenValidation.reason) {
         case 'TOKEN_REUSE_DETECTED':
           throw new ApiError(
-            "Security alert: Session compromised. Please login again.",
+            'Security alert: Session compromised. Please login again.',
             StatusCodes.UNAUTHORIZED
           );
         case 'TOKEN_EXPIRED':
           throw new ApiError(
-            "Session expired. Please login again.",
+            'Session expired. Please login again.',
             StatusCodes.UNAUTHORIZED
           );
         default:
           throw new ApiError(
-            "Invalid session. Please login again.",
+            'Invalid session. Please login again.',
             StatusCodes.UNAUTHORIZED
           );
       }
     }
 
-    const { decoded: refreshTokenDecoded, isNearExpiry } = refreshTokenValidation;
+    const {decoded: refreshTokenDecoded, isNearExpiry} = refreshTokenValidation;
 
     // Handle access token if present
     if (accessToken) {
@@ -139,7 +141,7 @@ const authenticateUser = expressAsyncHandler(async (req, res, next) => {
           await RefreshTokenModel.invalidateAllUserTokens(refreshTokenDecoded.userId);
           clearRefreshTokenCookie(res);
           throw new ApiError(
-            "Security alert: Token mismatch detected. Please login again.",
+            'Security alert: Token mismatch detected. Please login again.',
             StatusCodes.UNAUTHORIZED
           );
         }
@@ -151,6 +153,7 @@ const authenticateUser = expressAsyncHandler(async (req, res, next) => {
         };
       } catch (error) {
         // Access token invalid/expired - use refresh token data
+        userLogger.error('Access token invalid/expired', error);
         req.user = refreshTokenDecoded;
         await setTokens(res, refreshTokenDecoded);
       }
@@ -169,19 +172,20 @@ const authenticateUser = expressAsyncHandler(async (req, res, next) => {
     // Verify user object is properly set
     if (!req.user?.role) {
       throw new ApiError(
-        "Authentication failed: Invalid user data",
+        'Authentication failed: Invalid user data',
         StatusCodes.INTERNAL_SERVER_ERROR
       );
     }
 
-
     next();
   } catch (error) {
     clearRefreshTokenCookie(res);
-    throw error instanceof ApiError ? error : new ApiError(
-      "Authentication failed. Please try again.",
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
+    throw error instanceof ApiError
+      ? error
+      : new ApiError(
+        'Authentication failed. Please try again.',
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
   }
 });
 

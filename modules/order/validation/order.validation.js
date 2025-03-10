@@ -8,7 +8,6 @@ const createSchema = {
   body: joi.object({})
 };
 
-
 const updateSchema = {
   params: joi.object({
     id: ObjectId().required()
@@ -28,7 +27,7 @@ const updateSchema = {
     totalPrice: joi.forbidden(),
     status: joi.string().valid('pending', 'shipped', 'delivered', 'cancelled')
   })
-}
+};
 
 const updateOrderStatusSchema = {
   params: joi.object({
@@ -37,14 +36,13 @@ const updateOrderStatusSchema = {
   body: joi.object({
     status: joi.string().valid('pending', 'shipped', 'delivered', 'cancelled')
   })
-}
+};
 
 const deleteSchema = {
   params: joi.object({
     id: ObjectId().required()
-  }),
+  })
 };
-
 
 const getSchema = {
   query: joi.object({})

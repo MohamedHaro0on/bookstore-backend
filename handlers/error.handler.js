@@ -1,9 +1,9 @@
 /* eslint-disable unused-imports/no-unused-vars */
-import { StatusCodes } from 'http-status-codes';
+import process from 'node:process';
+import {StatusCodes} from 'http-status-codes';
 import mongoose from 'mongoose';
 import ApiError from '../utils/api.error.js';
-import process from 'process';
-import { systemLogger } from '../utils/logger.js';
+import {systemLogger} from '../utils/logger.js';
 
 // Handle different types of Mongoose errors
 const handleMongooseError = (err) => {
@@ -55,6 +55,22 @@ const handleJWTError = (err) => {
   return null;
 };
 
+const sendErrForDev = (err, res) => {
+  res.status(err.statusCode).json({
+    status: err.status,
+    error: err,
+    message: err.message,
+    stack: err.stack
+  });
+};
+
+const sendErrForProd = (err, res) => {
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message
+  });
+};
+
 const errorHandler = (err, req, res, next) => {
   let error = err;
   // If error is not an instance of ApiError, convert it
@@ -86,22 +102,6 @@ const errorHandler = (err, req, res, next) => {
     sendErrForProd(error, res);
   }
   systemLogger.error(error);
-};
-
-const sendErrForDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack
-  });
-};
-
-const sendErrForProd = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message
-  });
 };
 
 export default errorHandler;

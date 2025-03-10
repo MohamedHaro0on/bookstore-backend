@@ -1,5 +1,5 @@
+import process from 'node:process';
 import winston from 'winston';
-import process from 'process';
 
 // Define log levels
 const levels = {
@@ -18,12 +18,11 @@ const colors = {
   warn: 'yellow',
   info: 'green',
   http: 'magenta',
-  debug: 'blue',
+  debug: 'blue'
 };
 
 // Add colors to Winston
 winston.addColors(colors);
-
 
 const createLogger = (endpoint) => {
   return winston.createLogger({
@@ -32,19 +31,19 @@ const createLogger = (endpoint) => {
 
     // Define log format
     format: winston.format.combine(
-      winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+      winston.format.timestamp({format: 'YYYY-MM-DD HH:mm:ss'}),
       winston.format.printf(
         (info) => `${info.timestamp} ${info.level}: [${endpoint}] ${info.message}`
       )
     ),
-    defaultMeta: { endpoint }, // Add custom key-value pair for the endpoint
+    defaultMeta: {endpoint}, // Add custom key-value pair for the endpoint
     // Define transports (where to output logs)
     transports: [
       new winston.transports.Console(), // Log to console with colorized output
       new winston.transports.File({
-        filename: `logs/${endpoint}.log`, // Log to a file named after the endpoint
-      }),
-    ],
+        filename: `logs/${endpoint}.log` // Log to a file named after the endpoint
+      })
+    ]
   });
 };
 
@@ -55,4 +54,4 @@ const reviewLogger = createLogger('review');
 const cartLogger = createLogger('cart');
 const systemLogger = createLogger('system');
 
-export { orderLogger, userLogger, bookLogger, reviewLogger, cartLogger, systemLogger };
+export {bookLogger, cartLogger, orderLogger, reviewLogger, systemLogger, userLogger};

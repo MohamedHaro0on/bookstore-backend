@@ -25,13 +25,13 @@ const bookSchema = new mongoose.Schema(
     },
     img: {
       type: String,
-      required: true,
-    },
+      required: true
+    }
   },
   {
     timestamps: true,
-    toObject: { virtuals: true },
-    toJSON: { virtuals: true }
+    toObject: {virtuals: true},
+    toJSON: {virtuals: true}
   }
 );
 
@@ -39,7 +39,7 @@ const bookSchema = new mongoose.Schema(
 bookSchema.virtual('reviews', {
   ref: 'Review',
   localField: '_id',
-  foreignField: 'book',
+  foreignField: 'book'
 });
 
 // Middleware to automatically populate reviews

@@ -9,7 +9,7 @@
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: Add Repositories for Node and Redis 
+    - name: Add Repositories for Node and Redis
       ansible.builtin.shell: |
         curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &&
         curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg &&
@@ -28,7 +28,7 @@
           - gpg
           - redis
         state: present
-    
+
     - name: Enable and start Redis Server
       ansible.builtin.shell: |
         sudo systemctl enable redis-server &&
@@ -70,5 +70,3 @@
         chdir: /home/ubuntu/bookstore-backend
       become_user: ubuntu
       when: env_file.stat.exists
-
-

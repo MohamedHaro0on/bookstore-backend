@@ -1,8 +1,7 @@
-/* eslint-disable style/object-curly-spacing */
-/* eslint-disable node/prefer-global/process */
-
+import process from 'node:process';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import {systemLogger} from '../../utils/logger.js';
 
 const sendEmail = async (email, subject, HTMLFORM) => {
   const transporter = nodemailer.createTransport({
@@ -22,6 +21,8 @@ const sendEmail = async (email, subject, HTMLFORM) => {
       html: HTMLFORM(emailToken)
     });
   } catch (error) {
+    systemLogger.error('Error in sending email', error);
+    throw new Error('Error in sending email');
   }
 };
 export default sendEmail;

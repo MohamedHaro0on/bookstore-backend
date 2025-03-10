@@ -1,7 +1,10 @@
 import express from 'express';
+import attachImage from '../../../middlewares/attach.image.js';
+import authenticateUser from '../../../middlewares/authenticate.user.js';
+import {cacheAllMiddleware, cacheByIdMiddleware} from '../../../middlewares/cache.js';
+import checkRole from '../../../middlewares/check.role.js';
+import UploadFile from '../../../middlewares/file.upload.js';
 import validateRequest from '../../../middlewares/validate.request.js';
-import { cacheByIdMiddleware, cacheAllMiddleware } from '../../../middlewares/cache.js';
-import BookModel from '../model/book.model.js'
 import {
   create,
   getAll,
@@ -9,16 +12,13 @@ import {
   remove,
   update
 } from '../controller/book.controller.js';
+import BookModel from '../model/book.model.js';
 import {
   createBookSchema,
   deleteBookSchema,
   getBookSchema,
   updateBookSchema
 } from '../validation/book.validation.js';
-import UploadFile from '../../../middlewares/file.upload.js';
-import attachImage from '../../../middlewares/attach.image.js';
-import authenticateUser from '../../../middlewares/authenticate.user.js';
-import checkRole from '../../../middlewares/check.role.js';
 
 const bookRouter = express.Router();
 
@@ -35,7 +35,7 @@ bookRouter
   .route('/')
   .post(
     authenticateUser,
-    UploadFile("img", "books"),
+    UploadFile('img', 'books'),
     attachImage('img'),
     checkRole('admin'),
     validate.create,
@@ -48,15 +48,15 @@ bookRouter
   .get(validate.get, cacheByIdMiddleware(BookModel), getById)
   .put(
     authenticateUser,
-    UploadFile("img", "books"),
+    UploadFile('img', 'books'),
     attachImage('img'),
     checkRole('admin'),
     validate.update,
     update
   )
   .delete(
-    authenticateUser,        // First authenticate
-    checkRole('admin'),      // Then check role
+    authenticateUser, // First authenticate
+    checkRole('admin'), // Then check role
     validate.delete,
     remove
   );

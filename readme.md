@@ -1,191 +1,111 @@
 # Online Bookstore (E-commerce Platform) - MEAN Stack Project
 
 ## Project Overview
-
-This project simulates a real-life e-commerce platform where users can browse books, add them to a cart, and place orders. It covers all the topics taught in the course and introduces additional concepts for students to research independently.
-
----
+This project simulates a real-life e-commerce platform where users can browse books, add them to a cart, and place orders. The backend is built with Node.js, Express.js, and MongoDB, and demonstrates robust API design, secure authentication with JWT, and advanced middleware usage. While the original plan included a full Angular frontend, this implementation focuses solely on the backend.
 
 ## Project Features
 
 ### Backend (Node.js + Express.js + MongoDB)
+- **User Authentication and Authorization**
+  - Users can register, log in, and log out.
+  - JWT is used to secure endpoints.
+  - Role-based access control is implemented (e.g., admin vs. regular user).
 
-1. **User Authentication and Authorization**
+- **RESTful API Design**
+  - Endpoints for:
+    - User management (registration, login, profile update)
+    - Book management (CRUD operations for books; admin-only routes)
+    - Cart management (add/remove books, view cart)
+    - Order management (place orders, view order history)
+    - Review management (submit, view, update, delete reviews)
 
-   - Users can register, log in, and log out.
-   - Use JWT for authentication and authorization.
-   - Implement role-based access control (e.g., admin vs. regular user).
+- **Database Design**
+  - Schemas and models defined with Mongoose:
+    - **User:** Contains name, email, hashed password, role.
+    - **Book:** Includes title, author, price, description, stock, reviews, and image reference.
+    - **Order:** Associates a user with books, total price, and order status.
+    - **Review:** Connects a user and a book with rating, review text, and creation date.
+  - Proper indexing and relations are set up to optimize performance.
+  - An ERD is provided in the project documentation.
 
-2. **RESTful API Design**
+- **Middleware**
+  - **Authentication Middleware:** Validates JWT tokens for protected routes.
+  - **Error Handling Middleware:** Centralizes error responses.
+  - **Logging Middleware:** Logs incoming requests to a file using libraries like `winston` and `morgan`.
 
-   - Design RESTful endpoints for:
-     - User management (register, login, profile update).
-     - Book management (CRUD operations for books, accessible only to admins).
-     - Cart management (add/remove books, view cart).
-     - Order management (place orders, view order history).
-     - Review management (submit, view, update, delete reviews).
+- **Advanced Features**
+  - **Password Security:** Uses `bcrypt.js` to hash passwords before storage.
+  - **Pagination and Filtering:** Implements server-side pagination and filtering for book listings.
+  - **Transactions:** Ensures atomicity during order placement (reducing book stock and creating orders together).
+  - **File Handling:** Allows admins to upload book cover images using `multer`, with Express serving static files.
+  - **Validation:** Uses Mongoose and external libraries (Joi) for comprehensive schema validation.
+  - **Caching with Redis:** Redis is integrated to cache frequently accessed data (like the book list), reducing load on MongoDB and improving response times.
+  - **Payment Integration:** Integrated Stripe for secure payment processing during checkout.
+  - **Email Notifications:** Used nodemailer to send email activation notifications to users upon registration.
 
-3. **Database Design**
+## Setup and Installation
 
-   - Use Mongoose to define schemas and models for:
-     - Users (name, email, password, role).
-     - Books (title, author, price, description, stock, reviews, image(url or name)).
-     - Orders (user, books, total price, status).
-     - Reviews (user, book, rating, review, createdAt).
-   - ERD Required
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v12 or above)
+- [MongoDB](https://www.mongodb.com/) (local installation or MongoDB Atlas)
+- [Redis](https://redis.io/) (local installation or via a hosted service)
+- Git
 
-4. **Middleware**
+### Installation Steps
 
-   - Implement custom middleware for:
-     - Authentication (verify JWT).
-     - Error handling (centralized error handling middleware).
-     - Logging (log requests to a file using `fs` or a logging library like `winston`).
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/MohamedHaro0on/bookstore-backend.git
+   cd online-bookstore
+   ```
 
-5. **Advanced Features**
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-   - Use `bcrypt.js` to hash passwords before saving them to the database.
-   - Implement pagination and filtering for the book list API.
-   - Use transactions to handle order placement (e.g., reduce book stock and create an order in a single transaction).
+3. **Configure Environment Variables**
+   Create a `.env` file in the project root:
+   ```env
 
-6. **File Handling**
+   PORT=3000
+   NODE_ENV= development
+   DB_Name = bookstore
 
-   - Allow admins to upload book covers using `multer` (research required) or online CDN.
-   - Serve static files (e.g., book covers) using Express.
+   db_password = your_mongoDB_password
+   DB_URI = your_mongoDB_uri
+   email_password=your_pass
+   email_user_name=your_email
 
-7. **Validation**
+   ACCESS_TOKEN_EXPIRY=1h
+   REFRESH_TOKEN_EXPIRY=90d
+   REFRESH_TOKEN_DAYS=90d
 
-   - Use Mongoose validations for:
+   ACCESS_TOKEN_SECRET="your_acess_secret_token"
+   REFRESH_TOKEN_SECRET="your_refresh_token"
+   EMAIL_SECRET_KEY="your_email_token"
 
-     - User input (e.g., email format, password strength).
-     - Book data (e.g., price must be positive, stock must be an integer).
-     - Review data (e.g., rating must be between 1 and 5, review text must not exceed 500 characters).
+   PUBLISHABLE_KEY="your_Publishable_key"
+   SECRET_KEY="your_secret_key"
 
-   - Use Schema validation like (Joi, Ajv, etc...)
+   REDIS_URL = 'redis://localhost:6379'
+   ```
 
----
+1. **Run the Server**
+   - Start the server:
+     ```bash
+     npm run start:dev
+     ```
 
-### Frontend (Angular)
+2. **API Documentation**
+   A Postman collection is provided in the `/docs` directory for testing the API endpoints.
 
-1. **User Interface**
+## Deployment
+- **AWS Deployment with Terraform & Ansible:**
+  - The project is deployed on AWS using Terraform for infrastructure provisioning and Ansible for configuration management.
+  - Terraform configuration files can be found in the `Terraform/` directory.
+  - Ansible playbooks and configuration files are available in the `Ansible/` directory.
+  - Ensure that AWS credentials and required environment variables are set up prior to deployment.
 
-   - Home page: Display a list of books with search and filter options.
-   - Book details page: Show book details, allow users to add the book to their cart, and display reviews.
-   - Cart page: Display items in the cart and allow users to proceed to checkout.
-   - Order history page: Display past orders for logged-in users.
-
-2. **Authentication**
-
-   - Implement login and registration forms.
-   - Use Angular services to manage JWT tokens and user sessions.
-
-3. **API Integration**
-
-   - Use Angular's `HttpClient` to interact with the backend API.
-   - Handle errors and display appropriate messages to the user.
-
-4. **Review System**
-
-   - Add a review form on the book details page for users who have purchased the book.
-   - Display all reviews for a book on the book details page.
-   - Allow users to edit or delete their reviews.
-
-5. **Advanced Features**
-   - Implement lazy loading for Angular modules to optimize performance.
-   - Use Angular Material or Bootstrap for a responsive and modern UI.
-
----
-
-## General Remarks
-
-- Any pagination needs to be server-side pagination.
-- Good UI.
-- Think about model relations.
-- Think about what needs to be indexed in your models.
-- Use github, show the world.
-- Deploy your work to the web. (Use heroku and atlas).
-- Share your work on Linkedin, brand yourself.
-- Lint your projects.
-
-## BONUS
-
-- Use idP. (register, login with google and Facebook).
-- In-App Notification.
-
----
-
-## Additional Features for Research
-
-1. **Payment Integration**
-
-   - Integrate a payment gateway (e.g., Stripe or PayPal) to handle payments during checkout.
-   - Research how to securely handle payment information.
-
-2. **Email Notifications**
-
-   - Send email notifications to users when they register, place an order, or when their order status changes.
-   - Use a library like `nodemailer` for sending emails.
-
-3. **Deployment**
-
-   - Deploy the application to a cloud platform (e.g., Heroku, AWS, or Vercel).
-   - Research how to configure environment variables for production.
-
-4. **Caching**
-
-   - Implement caching for frequently accessed data (e.g., book list) using Redis or in-memory caching.
-
-5. **WebSockets**
-   - Use WebSockets to implement real-time features (e.g., notify admins when a new order is placed).
-
----
-
-## Project Deliverables
-
-1. **Backend**
-
-   - A fully functional RESTful API with proper documentation (e.g., using, postman collection or bruno collection).
-   - Proper error handling and validation.
-   - Git repository with clear commit history. (make sure every commit has a clear message, everyones should contribute to the project)
-
-2. **Frontend**
-
-   - A responsive and user-friendly Angular application.
-   - Proper state management (e.g., using Angular services or NgRx).
-   - Git repository with clear commit history. (make sure every commit has a clear message, everyones should contribute to the project)
-
-3. **Documentation**
-   - A README file explaining how to set up and run the project.
-4. **Presentation**
-
-- A presentation demonstrating the project features and discussing the technologies used.
-- A demo of the application with a walkthrough of the codebase.
-
----
-
-## Topics Covered
-
-- Web servers, HTTP/HTTPS, and RESTful APIs.
-- Node.js, Express.js, and MongoDB.
-- Authentication, authorization, and error handling.
-- Frontend development with Angular.
-- Advanced topics like payment integration, email notifications, and deployment.
-
----
-
-## Topics for Research
-
-- Payment gateway integration.
-- Email notifications using `nodemailer`.
-- Uploading Files with Multer.
-- Running Cron Jobs (node-cron).
-- Logging with Winston & Morgan.
-- OAuth2 and Social Login (Google, GitHub, Facebook).
-- Rate Limiting with express-rate-limit.
-- Caching with Redis.
-- Full text search.
-- Role-Based Access Control (RBAC).
-- Access Control Lists (ACLs).
-- Session Management (express-session, connect-mongo).
-- Single Active Session Restriction.
-- Real-time features with WebSockets.
-- Deployment to cloud platforms.
+## Conclusion
+This project demonstrates a full-featured backend for an online bookstore, incorporating modern web development practices such as RESTful API design, secure authentication, and scalable database management. Feel free to fork the repository, contribute, and deploy your own version of this project.

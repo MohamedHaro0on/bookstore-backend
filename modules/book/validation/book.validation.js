@@ -9,7 +9,7 @@ export const createBookSchema = Joi.object({
   price: Joi.number().min(0).required(),
   description: Joi.string().required(),
   stock: Joi.number().min(0).default(0),
-  img: Joi.string().required(),
+  img: Joi.string().required()
 });
 
 export const updateBookSchema = {
@@ -19,7 +19,7 @@ export const updateBookSchema = {
     price: Joi.number().min(0),
     description: Joi.string().optional().allow(''),
     stock: Joi.number().min(0).default(0),
-    img: Joi.string().optional(),
+    img: Joi.string().optional()
   }),
   params: Joi.object({
     id: ObjectId().required().messages({

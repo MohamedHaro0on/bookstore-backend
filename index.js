@@ -1,6 +1,7 @@
+import process from 'node:process';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { config } from 'dotenv';
+import {config} from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
 import {DBconnection, redisConnection} from './configurations/config.js';
@@ -8,10 +9,9 @@ import errorHandler from './handlers/error.handler.js';
 import routeNotImplementedHandler from './handlers/not.implemented.route.handler.js';
 import bookRouter from './modules/book/routes/book.routes.js';
 import cartRouter from './modules/cart/routes/cart.routes.js';
-import UserRoutes from './modules/user/routes/user.routes.js';
-import ReviewRoutes from './modules/review/routes/review.routes.js';
-import process from 'process';
 import orderRoutes from './modules/order/routes/order.routes.js';
+import ReviewRoutes from './modules/review/routes/review.routes.js';
+import UserRoutes from './modules/user/routes/user.routes.js';
 
 const app = express();
 
@@ -29,12 +29,11 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(express.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 
 // serving static files :
-app.use("/public/users", express.static("public/users"))
-app.use("/public/books", express.static("public/books"))
-
+app.use('/public/users', express.static('public/users'));
+app.use('/public/books', express.static('public/books'));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -47,7 +46,7 @@ app.use('/users/', UserRoutes);
 app.use('/books/', bookRouter);
 app.use('/carts/', cartRouter);
 app.use('/reviews/', ReviewRoutes);
-app.use("/orders/", orderRoutes)
+app.use('/orders/', orderRoutes);
 // Not implemented Errors :
 app.all('*', routeNotImplementedHandler);
 // Global error handling middleware for express ;

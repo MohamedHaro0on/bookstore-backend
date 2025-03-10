@@ -1,5 +1,5 @@
 import expressAsyncHandler from 'express-async-handler';
-import { StatusCodes } from 'http-status-codes';
+import {StatusCodes} from 'http-status-codes';
 import ApiError from '../utils/api.error.js';
 
 const checkRole = (...roles) => expressAsyncHandler(async (req, res, next) => {
@@ -10,6 +10,6 @@ const checkRole = (...roles) => expressAsyncHandler(async (req, res, next) => {
     new ApiError(`you are not authorized mmeeeeee`, StatusCodes.UNAUTHORIZED)
   );
 }
-)
+);
 
 export default checkRole;

@@ -1,11 +1,11 @@
 import expressAsyncHandler from 'express-async-handler';
-import { StatusCodes } from 'http-status-codes';
+import {StatusCodes} from 'http-status-codes';
+import {redisClient} from '../../configurations/config.js';
 import ApiError from '../api.error.js';
 import ApiFeatures from '../api.featuers.js';
-import { redisClient } from '../../configurations/config.js';
 
 const getHandler = (Model, object, withOwnerShip) =>
-  expressAsyncHandler(async (req, res) => {
+  expressAsyncHandler(async (req, res, next) => {
     if (withOwnerShip) {
       req.query.user = req.user.userId;
     }
@@ -18,11 +18,11 @@ const getHandler = (Model, object, withOwnerShip) =>
       apiFeatures = apiFeatures.populate(object);
     }
 
-    const { mongooseQuery, paginationResult } = apiFeatures;
+    const {mongooseQuery, paginationResult} = apiFeatures;
     const data = await mongooseQuery;
     if (data) {
       await redisClient.set(`${Model.modelName}:all`, JSON.stringify(data), {
-        EX: 3600,
+        EX: 3600
       });
 
       res.status(StatusCodes.OK).json({

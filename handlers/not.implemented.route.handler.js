@@ -1,4 +1,4 @@
-import { StatusCodes } from 'http-status-codes';
+import {StatusCodes} from 'http-status-codes';
 import ApiError from '../utils/api.error.js';
 
 const routeNotImplementedHandler = (req, res, next) => {

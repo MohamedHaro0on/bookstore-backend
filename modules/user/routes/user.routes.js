@@ -1,16 +1,19 @@
 import express from 'express';
+import attachImage from '../../../middlewares/attach.image.js';
 import authenticateUser from '../../../middlewares/authenticate.user.js';
+import checkRole from '../../../middlewares/check.role.js';
+import UploadFile from '../../../middlewares/file.upload.js';
 import validateRequest from '../../../middlewares/validate.request.js';
 import RefreshTokenModel from '../../refresh_token/model/refresh_token.model.js';
 import {
-  getById,
   getAll,
+  getById,
   login,
   logout,
   refreshToken,
   register,
-  verifyEmail,
   update,
+  verifyEmail
 } from '../controller/user.controller.js';
 import UserModel from '../model/user.model.js';
 import {
@@ -22,9 +25,6 @@ import {
   updateProfileSchema,
   verifyEmailSchema
 } from '../validation/user.validation.js';
-import UploadFile from '../../../middlewares/file.upload.js';
-import checkRole from '../../../middlewares/check.role.js';
-import attachImage from '../../../middlewares/attach.image.js';
 
 const userRouter = express.Router();
 
@@ -38,7 +38,6 @@ const validate = {
   delete: validateRequest(deleteUserSchema),
   update: validateRequest(updateProfileSchema)
 };
-
 
 // Auth routes
 userRouter
@@ -61,7 +60,6 @@ userRouter
   .route('/auth/update/:id')
   .put(authenticateUser, UploadFile('avatar', 'users'), attachImage('avatar'), validate.update, update);
 
-
 // Email verification
 userRouter
   .route('/verify-email/:token')
@@ -71,15 +69,10 @@ userRouter
   .route('/auth/update/:id')
   .put(UploadFile('avatar', 'users'), attachImage('avatar'), validate.update, update);
 
-
 userRouter
   .route('/:id')
   .get(authenticateUser, validate.getById, getById)
   .delete(authenticateUser, checkRole('admin'), validate.delete);
-
-
-
-
 
 // Admin routes
 const adminRouter = express.Router();
@@ -94,7 +87,6 @@ userRouter
     getAll
   );
 
-
 adminRouter
   .route('/delete-all-users')
   .delete(
@@ -103,7 +95,7 @@ adminRouter
     async (req, res) => {
       await UserModel.deleteMany({});
       await RefreshTokenModel.deleteMany({});
-      res.status(200).json({ message: 'All users deleted successfully' });
+      res.status(200).json({message: 'All users deleted successfully'});
     }
   );
 
